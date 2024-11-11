@@ -23,9 +23,7 @@ defmodule CraqValidator.Factory do
   end
 
   def build(:form_submission) do
-    %FormSubmission{
-      answers: %{}
-    }
+    %FormSubmission{}
   end
 
   def build(factory_name, attributes) do

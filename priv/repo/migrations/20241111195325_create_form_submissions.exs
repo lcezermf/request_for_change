@@ -3,7 +3,9 @@ defmodule CraqValidator.Repo.Migrations.CreateFormSubmissions do
 
   def change do
     create table(:form_submissions) do
-      add :answers, :map
+      add :selected_option_id, :integer
+
+      add :question_id, references(:questions, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
