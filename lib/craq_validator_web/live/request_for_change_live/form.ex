@@ -14,8 +14,17 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         []
       end
 
-    socket = assign(socket, :questions, questions)
+    socket =
+      socket
+      |> assign(:questions, questions)
+      |> assign(:form, %{})
 
     {:ok, socket}
+  end
+
+  def handle_event("save", params, socket) do
+    IO.inspect(params, label: :params)
+
+    {:noreply, socket}
   end
 end
