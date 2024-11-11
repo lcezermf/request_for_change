@@ -9,7 +9,8 @@ defmodule CraqValidator.Factory do
 
   def build(:question) do
     %Question{
-      description: "My description for question #{System.unique_integer([:positive])}"
+      description: "My description for question #{System.unique_integer([:positive])}",
+      kind: "multiple_choice"
     }
   end
 
