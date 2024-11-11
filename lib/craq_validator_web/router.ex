@@ -18,6 +18,8 @@ defmodule CraqValidatorWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/request_for_change", RequestForChangeLive.Form, :new
   end
 
   # Other scopes may use custom stacks.
