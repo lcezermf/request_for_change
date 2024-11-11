@@ -2,9 +2,13 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   @moduledoc """
   TBD
   """
+
   use CraqValidatorWeb, :live_view
 
+  import Phoenix.HTML.Form
+
   alias CraqValidator.RequestForChange
+  alias CraqValidator.RequestForChange.FormSubmission
 
   def mount(_params, _session, socket) do
     questions =
@@ -17,7 +21,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     socket =
       socket
       |> assign(:questions, questions)
-      |> assign(:form, %{})
+      |> assign(:form_submission, FormSubmission.changeset(%FormSubmission{}, %{}))
 
     {:ok, socket}
   end

@@ -1,14 +1,18 @@
 <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
   <h1 class="text-2xl font-bold mb-4">Answer Questions</h1>
   <div id="questions-list">
-    <.simple_form for={@form} phx-submit="save">
+    <.simple_form :let={f} for={@form_submission} phx-submit="save">
       <%= for question <- @questions do %>
         <div class="mb-4">
           <p class="text-lg font-semibold"><%= question.description %></p>
           <div class="mt-2">
             <%= for option <- question.options do %>
               <label class="block">
-                <%= option.description %>
+                <input
+                  type="radio"
+                  name={input_name(f, "question_#{question.id}_selected_option")}
+                  value={option.id}
+                /><%= option.description %>
               </label>
             <% end %>
           </div>
