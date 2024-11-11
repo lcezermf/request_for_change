@@ -6,9 +6,13 @@ defmodule CraqValidator.RequestForChange do
   alias CraqValidator.RequestForChange.Question
   alias CraqValidator.Repo
 
+  import Ecto.Query
+
   @doc "List all questions"
   @spec list_questions() :: [Question.t()] | []
   def list_questions do
-    Repo.all(Question)
+    Question
+    |> preload([:options])
+    |> Repo.all()
   end
 end

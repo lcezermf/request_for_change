@@ -11,6 +11,8 @@ defmodule CraqValidator.RequestForChange.Question do
   schema "question" do
     field :description, :string
 
+    has_many :options, CraqValidator.RequestForChange.Option
+
     timestamps(type: :utc_datetime)
   end
 
