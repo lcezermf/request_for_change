@@ -9,3 +9,25 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+alias CraqValidator.RequestForChange.Question
+alias CraqValidator.Repo
+alias CraqValidator.RequestForChange.Option
+alias CraqValidator.RequestForChange.Question
+
+{:ok, question_one} =
+  Repo.insert(%Question{
+    description: "My option for question #{System.unique_integer([:positive])}"
+  })
+
+{:ok, option_one} =
+  Repo.insert(%Option{
+    description: "My option for question #{System.unique_integer([:positive])}",
+    question_id: question_one.id
+  })
+
+{:ok, option_two} =
+  Repo.insert(%Option{
+    description: "My option for question #{System.unique_integer([:positive])}",
+    question_id: question_one.id
+  })
