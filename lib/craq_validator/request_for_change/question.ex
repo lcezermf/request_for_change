@@ -11,6 +11,7 @@ defmodule CraqValidator.RequestForChange.Question do
 
   schema "questions" do
     field :description, :string
+    field :kind, :string
 
     has_many :options, CraqValidator.RequestForChange.Option
 
