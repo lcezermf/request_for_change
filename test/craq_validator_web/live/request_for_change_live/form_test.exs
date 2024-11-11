@@ -14,7 +14,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       option_one: option_one,
       option_two: option_two
     } do
-      {:ok, view, html} = get(conn, ~p"/request_for_change") |> live()
+      {:ok, view, html} = access_form_submission_page(conn)
 
       assert html =~ "Answer Questions"
 
@@ -22,6 +22,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       assert has_element?(view, "input[value=#{option_one.id}]")
       assert has_element?(view, "input[value=#{option_two.id}]")
     end
+  end
+
+  defp access_form_submission_page(conn) do
+    conn
+    |> get(~p"/request_for_change")
+    |> live()
   end
 
   defp create_one_question_with_options(_context) do
