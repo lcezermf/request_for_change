@@ -4,7 +4,7 @@ defmodule CraqValidator.RequestForChangeTest do
   alias CraqValidator.Factory
   alias CraqValidator.RequestForChange
 
-  describe "list_questions" do
+  describe "list_questions/0" do
     test "must return empty" do
       assert Enum.empty?(RequestForChange.list_questions())
     end

@@ -33,7 +33,8 @@ Repo.insert(%Option{
 
 {:ok, question_two} =
   Repo.insert(%Question{
-    description: "My option for question #{System.unique_integer([:positive])}"
+    description: "My option for question #{System.unique_integer([:positive])}",
+    kind: "multiple_choice"
   })
 
 Repo.insert(%Option{
