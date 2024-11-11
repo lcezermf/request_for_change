@@ -3,12 +3,13 @@ defmodule CraqValidator.RequestForChange.Question do
   TBD
   """
 
-  @type t :: %__MODULE__{}
-
   use Ecto.Schema
+
   import Ecto.Changeset
 
-  schema "question" do
+  @type t :: %__MODULE__{}
+
+  schema "questions" do
     field :description, :string
 
     has_many :options, CraqValidator.RequestForChange.Option

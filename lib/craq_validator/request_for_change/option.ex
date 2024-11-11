@@ -1,10 +1,14 @@
 defmodule CraqValidator.RequestForChange.Option do
+  @moduledoc """
+  TBD
+  """
   use Ecto.Schema
+
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}
 
-  schema "option" do
+  schema "options" do
     field :description, :string
 
     belongs_to :question, CraqValidator.RequestForChange.Question

@@ -2,13 +2,13 @@ defmodule CraqValidator.Repo.Migrations.CreateOption do
   use Ecto.Migration
 
   def change do
-    create table(:option) do
+    create table(:options) do
       add :description, :text
-      add :question_id, references(:question, on_delete: :nothing)
+      add :question_id, references(:questions, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
 
-    create index(:option, [:question_id])
+    create index(:options, [:question_id])
   end
 end
