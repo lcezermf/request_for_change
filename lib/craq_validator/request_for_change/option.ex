@@ -2,6 +2,8 @@ defmodule CraqValidator.RequestForChange.Option do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "option" do
     field :description, :string
 

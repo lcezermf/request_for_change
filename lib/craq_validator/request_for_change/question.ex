@@ -3,6 +3,8 @@ defmodule CraqValidator.RequestForChange.Question do
   TBD
   """
 
+  @type t :: %__MODULE__{}
+
   use Ecto.Schema
   import Ecto.Changeset
 
