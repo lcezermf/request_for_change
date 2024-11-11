@@ -20,6 +20,5 @@ defmodule CraqValidator.RequestForChange.Option do
   def changeset(option, attrs) do
     option
     |> cast(attrs, [:description])
-    |> validate_required([:description])
   end
 end

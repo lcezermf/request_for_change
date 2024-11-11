@@ -22,6 +22,5 @@ defmodule CraqValidator.RequestForChange.Question do
   def changeset(question, attrs) do
     question
     |> cast(attrs, [:description])
-    |> validate_required([:description])
   end
 end
