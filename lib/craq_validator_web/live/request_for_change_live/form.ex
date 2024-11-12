@@ -65,10 +65,23 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         end
       end)
 
-    socket =
-      socket
-      |> assign(:errors, errors)
+    if errors != %{} do
+      socket =
+        socket
+        |> assign(:errors, errors)
 
-    {:noreply, socket}
+      {:noreply, socket}
+    else
+      {:ok, _} = RequestForChange.save(selected_options)
+
+      socket =
+        socket
+        |> assign(:selected_options, %{})
+        |> assign(:errors, %{})
+        |> assign(:form_submission, FormSubmission.changeset(%FormSubmission{}, %{}))
+        |> put_flash(:info, "CRAQ submitted successfully!")
+
+      {:noreply, socket}
+    end
   end
 end

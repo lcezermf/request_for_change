@@ -4,6 +4,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   import Phoenix.LiveViewTest
 
   alias CraqValidator.Factory
+  alias CraqValidator.Repo
+  alias CraqValidator.RequestForChange.FormSubmission
 
   describe "renders page" do
     test "must render the page with questions", %{
@@ -69,10 +71,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       assert has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
     end
 
-    test "must not render error when all options are selected",
+    test "must not render error when all options are selected and create a form_submission record",
          %{
            conn: conn
          } do
+      assert Repo.aggregate(FormSubmission, :count, :id) == 0
+
       question_one = Factory.insert!(:question)
 
       option_one = Factory.insert!(:option, question_id: question_one.id)
@@ -97,8 +101,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       |> form("#craq_form")
       |> render_submit()
 
+      assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
+
       refute has_element?(view, "span[data-question-id=#{question_one.id}]", "Required")
       refute has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
+
+      assert Repo.aggregate(FormSubmission, :count, :id) == 1
     end
   end
 

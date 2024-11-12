@@ -4,6 +4,7 @@ defmodule CraqValidator.RequestForChange do
   """
 
   alias CraqValidator.RequestForChange.Question
+  alias CraqValidator.RequestForChange.FormSubmission
   alias CraqValidator.Repo
 
   import Ecto.Query
@@ -14,5 +15,13 @@ defmodule CraqValidator.RequestForChange do
     Question
     |> preload([:options])
     |> Repo.all()
+  end
+
+  @doc "Save a new form submission"
+  @spec save(map()) :: {:ok, Ecto.Changeset.t()} | {:error, Ecto.Changeset.t()}
+  def save(selected_options) do
+    %FormSubmission{}
+    |> FormSubmission.changeset(%{answers: selected_options})
+    |> Repo.insert()
   end
 end

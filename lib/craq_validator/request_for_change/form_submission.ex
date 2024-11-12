@@ -9,9 +9,7 @@ defmodule CraqValidator.RequestForChange.FormSubmission do
   @type t :: %__MODULE__{}
 
   schema "form_submissions" do
-    field :selected_option_id, :integer
-
-    belongs_to :question, CraqValidator.RequestForChange.Question
+    field :answers, :map, default: %{}
 
     timestamps(type: :utc_datetime)
   end
@@ -19,6 +17,6 @@ defmodule CraqValidator.RequestForChange.FormSubmission do
   @doc false
   def changeset(form_submission, attrs) do
     form_submission
-    |> cast(attrs, [:selected_option_id])
+    |> cast(attrs, [:answers])
   end
 end
