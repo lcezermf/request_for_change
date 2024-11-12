@@ -50,10 +50,51 @@ defmodule CraqValidator.RequestForChangeTest do
           })
       }
 
-      :ok = RequestForChange.save_responses(responses)
+      [result] = RequestForChange.save_responses(responses)
+
+      assert result.question_id == question_one.id
+      assert result.selected_option_id == option_one.id
+    end
+
+    test "must save a multiple valid response" do
+      question_one = question_factory()
+      option_one = option_factory(%{question: question_one})
+
+      question_two = question_factory()
+      option_two = option_factory(%{question: question_two})
+
+      question_three = question_factory(%{kind: "free_text"})
+      question_four = question_factory(%{kind: "free_text"})
+
+      responses = %{
+        question_one.id =>
+          Response.changeset(%Response{}, %{
+            "question_id" => question_one.id,
+            "selected_option_id" => option_one.id
+          }),
+        question_two.id =>
+          Response.changeset(%Response{}, %{
+            "question_id" => question_two.id,
+            "selected_option_id" => option_two.id
+          }),
+        question_three =>
+          Response.changeset(%Response{}, %{
+            "question_id" => question_three.id
+          }),
+        question_four =>
+          Response.changeset(%Response{}, %{
+            "question_id" => question_four.id,
+            "comment" => "My comment"
+          })
+      }
+
+      responses = RequestForChange.save_responses(responses)
+
+      assert length(responses) == 4
+      assert List.last(responses).comment == "My comment"
     end
   end
 
   defp question_factory(attrs \\ %{}), do: Factory.insert!(:question, attrs)
-  defp option_factory(attrs \\ %{}), do: Factory.insert!(:option, attrs)
+  defp option_factory(attrs), do: Factory.insert!(:option, attrs)
 end

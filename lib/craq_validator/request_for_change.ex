@@ -25,8 +25,9 @@ defmodule CraqValidator.RequestForChange do
   end
 
   def save_responses(responses) do
-    Enum.each(responses, fn {_, response} ->
-      {:ok, _} = Repo.insert(response)
+    Enum.map(responses, fn {_, response} ->
+      {:ok, response} = Repo.insert(response)
+      response
     end)
   end
 end
