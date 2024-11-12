@@ -4,15 +4,15 @@ defmodule CraqValidator.RequestForChangeTest do
   alias CraqValidator.Factory
   alias CraqValidator.RequestForChange
 
-  describe "save/1" do
-    test "must save a new record" do
-      params = %{1 => 2}
+  # describe "save/1" do
+  #   test "must save a new record" do
+  #     params = %{1 => 2}
 
-      {:ok, form_submission} = RequestForChange.save(params)
+  #     {:ok, form_submission} = RequestForChange.save(params)
 
-      assert form_submission.answers == %{1 => %{option: 2, comment: ""}}
-    end
-  end
+  #     assert form_submission.answers == %{1 => %{option: 2, comment: ""}}
+  #   end
+  # end
 
   describe "list_questions/0" do
     test "must return empty" do

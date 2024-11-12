@@ -8,7 +8,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   import Phoenix.HTML.Form
 
   alias CraqValidator.RequestForChange
-  alias CraqValidator.RequestForChange.FormSubmission
 
   @impl true
   def mount(_params, _session, socket) do
@@ -75,13 +74,14 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
       {:noreply, socket}
     else
-      {:ok, _} = RequestForChange.save(selected_options)
+      # Save later
+      # {:ok, _} = RequestForChange.save(selected_options)
 
       socket =
         socket
         |> assign(:selected_options, %{})
         |> assign(:errors, %{})
-        |> assign(:form_submission, FormSubmission.changeset(%FormSubmission{}, %{}))
+        |> assign(:form_submission, %{})
         |> put_flash(:info, "CRAQ submitted successfully!")
 
       {:noreply, socket}

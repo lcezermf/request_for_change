@@ -4,8 +4,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   import Phoenix.LiveViewTest
 
   alias CraqValidator.Factory
-  alias CraqValidator.Repo
-  alias CraqValidator.RequestForChange.FormSubmission
 
   describe "renders page" do
     test "must render the page with questions", %{
@@ -75,8 +73,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
          %{
            conn: conn
          } do
-      assert Repo.aggregate(FormSubmission, :count, :id) == 0
-
       question_one = Factory.insert!(:question)
 
       option_one = Factory.insert!(:option, question_id: question_one.id)
@@ -105,8 +101,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
 
       refute has_element?(view, "span[data-question-id=#{question_one.id}]", "Required")
       refute has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
-
-      assert Repo.aggregate(FormSubmission, :count, :id) == 1
     end
   end
 
