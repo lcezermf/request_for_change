@@ -11,23 +11,22 @@
                 <input
                   type="radio"
                   name={input_name(f, "#{question.id}")}
-                  value={option.id}
-                  phx-click="select_option"
+                  phx-click="reply_question"
                   id={"#{option.id}"}
                   phx-value-option_id={option.id}
                   phx-value-question_id={question.id}
-                  checked={if @selected_options[question.id] == option.id, do: true, else: false}
                   class="mr-2"
+                  checked={@responses[question.id].changes[:selected_option_id] == option.id}
                 /><%= option.description %>
               </label>
             <% end %>
-            <%= if @errors != %{} and not is_nil(@errors[question.id]) do %>
+            <%= if @has_submitted and @responses[question.id].errors[:selected_option_id] do %>
               <div
-                class="bg-red-100 border border-red-400 text-red-700 px-2 py-1 rounded relative mt-2"
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
                 role="alert"
               >
-                <span data-question-id={question.id} class="error block sm:inline">
-                  <%= @errors[question.id] %>
+                <span data-question-id={question.id}>
+                  <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
                 </span>
               </div>
             <% end %>

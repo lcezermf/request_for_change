@@ -4,6 +4,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   import Phoenix.LiveViewTest
 
   alias CraqValidator.Factory
+  alias CraqValidator.Repo
+  alias CraqValidator.RequestForChange.Response
 
   describe "renders page" do
     test "must render the page with questions", %{
@@ -39,7 +41,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       |> form("#craq_form")
       |> render_submit()
 
-      assert has_element?(view, "span.error", "Required")
+      assert has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
     end
 
     test "must render error when there are many multiple choice questions and at least one is not completed",
@@ -66,13 +68,15 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       |> form("#craq_form")
       |> render_submit()
 
-      assert has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
+      assert has_element?(view, "span[data-question-id=#{question_two.id}]", "can't be blank")
     end
 
-    test "must not render error when all options are selected and create a form_submission record",
+    test "must not render error when all options are selected and create a response record",
          %{
            conn: conn
          } do
+      assert Repo.aggregate(Response, :count, :id) == 0
+
       question_one = Factory.insert!(:question)
 
       option_one = Factory.insert!(:option, question_id: question_one.id)
@@ -99,8 +103,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
 
       assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
 
-      refute has_element?(view, "span[data-question-id=#{question_one.id}]", "Required")
-      refute has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
+      refute has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
+      refute has_element?(view, "span[data-question-id=#{question_two.id}]", "can't be blank")
+
+      assert Repo.aggregate(Response, :count, :id) == 2
     end
   end
 

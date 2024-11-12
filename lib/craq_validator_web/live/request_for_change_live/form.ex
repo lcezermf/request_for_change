@@ -4,10 +4,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   """
 
   use CraqValidatorWeb, :live_view
-
-  import Phoenix.HTML.Form
+  use Phoenix.HTML
 
   alias CraqValidator.RequestForChange
+  alias CraqValidator.RequestForChange.Response
 
   @impl true
   def mount(_params, _session, socket) do
@@ -21,24 +21,29 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     socket =
       socket
       |> assign(:questions, questions)
-      |> assign(:selected_options, %{})
-      |> assign(:errors, %{})
+      |> assign(:responses, build_responses_changeset(questions))
+      |> assign(:has_submitted, false)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_event("select_option", params, socket) do
-    selected_options = socket.assigns.selected_options
+  def handle_event(
+        "reply_question",
+        %{"question_id" => question_id, "option_id" => option_id},
+        socket
+      ) do
+    responses = socket.assigns.responses
 
-    %{"question_id" => question_id, "option_id" => option_id} = Map.drop(params, ["value"])
-
-    updated_selected_options =
-      Map.put(selected_options, String.to_integer(question_id), String.to_integer(option_id))
+    changeset =
+      Response.changeset(%Response{}, %{
+        "question_id" => question_id,
+        "selected_option_id" => option_id
+      })
 
     socket =
       socket
-      |> assign(:selected_options, updated_selected_options)
+      |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
 
     {:noreply, socket}
   end
@@ -50,41 +55,37 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         %{
           assigns: %{
             questions: questions,
-            selected_options: selected_options
+            responses: responses
           }
         } = socket
       ) do
-    question_ids_with_options_selected = Map.keys(selected_options)
-
-    required_questions = Enum.filter(questions, &(&1.kind == "multiple_choice"))
-
-    errors =
-      Enum.reduce(required_questions, %{}, fn question, acc ->
-        if question.id not in question_ids_with_options_selected do
-          Map.put(acc, question.id, "Required")
-        else
-          %{}
-        end
+    all_valid? =
+      Enum.all?(responses, fn {_question_id, response} ->
+        response.valid?
       end)
 
-    if errors != %{} do
-      socket =
-        socket
-        |> assign(:errors, errors)
+    socket =
+      if all_valid? do
+        :ok = RequestForChange.save_responses(responses)
 
-      {:noreply, socket}
-    else
-      # Save later
-      # {:ok, _} = RequestForChange.save(selected_options)
-
-      socket =
         socket
-        |> assign(:selected_options, %{})
-        |> assign(:errors, %{})
-        |> assign(:form_submission, %{})
+        |> assign(:questions, questions)
+        |> assign(:responses, build_responses_changeset(questions))
+        |> assign(:has_submitted, false)
         |> put_flash(:info, "CRAQ submitted successfully!")
+      else
+        socket
+        |> assign(:has_submitted, true)
+      end
 
-      {:noreply, socket}
-    end
+    {:noreply, socket}
+  end
+
+  defp build_responses_changeset([]), do: %{}
+
+  defp build_responses_changeset(questions) do
+    Enum.reduce(questions, %{}, fn question, acc ->
+      Map.put(acc, question.id, Response.changeset(%Response{}, %{question_id: question.id}))
+    end)
   end
 end

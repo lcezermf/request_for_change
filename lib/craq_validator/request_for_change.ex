@@ -16,16 +16,17 @@ defmodule CraqValidator.RequestForChange do
     |> Repo.all()
   end
 
-  # @doc "Save a new form submission"
-  # @spec save(map()) :: {:ok, Ecto.Changeset.t()} | {:error, Ecto.Changeset.t()}
-  # def save(selected_options) do
-  #   answers =
-  #     Enum.reduce(selected_options, %{}, fn {key, value}, acc ->
-  #       Map.put(acc, key, %{option: value, comment: ""})
-  #     end)
+  @doc "Return question by given id"
+  @spec get_question_by_id(integer()) :: Question.t() | nil
+  def get_question_by_id(nil), do: nil
 
-  #   %FormSubmission{}
-  #   |> FormSubmission.changeset(%{answers: answers})
-  #   |> Repo.insert()
-  # end
+  def get_question_by_id(id) do
+    Repo.get(Question, id)
+  end
+
+  def save_responses(responses) do
+    Enum.each(responses, fn {_, response} ->
+      {:ok, _} = Repo.insert(response)
+    end)
+  end
 end
