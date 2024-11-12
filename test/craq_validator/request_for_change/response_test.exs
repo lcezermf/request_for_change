@@ -15,5 +15,16 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
       changeset = Response.changeset(%Response{}, %{question_id: question.id})
       refute changeset.valid?
     end
+
+    test "must not validate selected_option_id when question is of type free_text" do
+      question = Factory.insert!(:question, %{kind: "free_text"})
+      Factory.insert!(:option, %{question: question})
+
+      changeset = Response.changeset(%Response{}, %{})
+      assert changeset.valid?
+
+      changeset = Response.changeset(%Response{}, %{question_id: question.id})
+      assert changeset.valid?
+    end
   end
 end

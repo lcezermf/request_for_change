@@ -48,6 +48,28 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     {:noreply, socket}
   end
 
+  def handle_event(
+        "reply_question",
+        %{"question_id" => question_id, "value" => comment},
+        socket
+      ) do
+    responses = socket.assigns.responses
+
+    base_struct = Map.get(responses, String.to_integer(question_id), %Response{})
+
+    changeset =
+      Response.changeset(base_struct, %{
+        "question_id" => question_id,
+        "comment" => comment
+      })
+
+    socket =
+      socket
+      |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
+
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_event(
         "save",
@@ -66,7 +88,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     socket =
       if all_valid? do
-        :ok = RequestForChange.save_responses(responses)
+        RequestForChange.save_responses(responses)
 
         socket
         |> assign(:questions, questions)
@@ -85,7 +107,11 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
   defp build_responses_changeset(questions) do
     Enum.reduce(questions, %{}, fn question, acc ->
-      Map.put(acc, question.id, Response.changeset(%Response{}, %{question_id: question.id}))
+      Map.put(
+        acc,
+        question.id,
+        Response.changeset(%Response{}, %{question_id: question.id})
+      )
     end)
   end
 end

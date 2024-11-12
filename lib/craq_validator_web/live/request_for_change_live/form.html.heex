@@ -6,29 +6,48 @@
         <div class="mb-4">
           <p class="text-lg font-semibold"><%= question.description %></p>
           <div class="mt-2">
-            <%= for option <- question.options do %>
-              <label class="block">
-                <input
-                  type="radio"
-                  name={input_name(f, "#{question.id}")}
-                  phx-click="reply_question"
-                  id={"#{option.id}"}
-                  phx-value-option_id={option.id}
-                  phx-value-question_id={question.id}
-                  class="mr-2"
-                  checked={@responses[question.id].changes[:selected_option_id] == option.id}
-                /><%= option.description %>
-              </label>
-            <% end %>
-            <%= if @has_submitted and @responses[question.id].errors[:selected_option_id] do %>
-              <div
-                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                role="alert"
-              >
-                <span data-question-id={question.id}>
-                  <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
-                </span>
-              </div>
+            <%= if question.kind == "multiple_choice" do %>
+              <%= for option <- question.options do %>
+                <label class="block">
+                  <input
+                    type="radio"
+                    name={input_name(f, "#{question.id}")}
+                    phx-click="reply_question"
+                    id={"#{option.id}"}
+                    phx-value-option_id={option.id}
+                    phx-value-question_id={question.id}
+                    class="mr-2"
+                    checked={@responses[question.id].changes[:selected_option_id] == option.id}
+                  /><%= option.description %>
+                </label>
+              <% end %>
+              <textarea
+                name={input_name(f, "#{question.id}")}
+                id={"comment_#{question.id}"}
+                phx-blur="reply_question"
+                phx-value-question_id={question.id}
+                phx_debonuce={1000}
+                phx-update="ignore"
+              />
+              <%= if @has_submitted and @responses[question.id].errors[:selected_option_id] do %>
+                <div
+                  class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                  role="alert"
+                >
+                  <span data-question-id={question.id}>
+                    <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
+                  </span>
+                </div>
+              <% end %>
+            <% else %>
+              <textarea
+                name={input_name(f, "#{question.id}")}
+                id={"comment_#{question.id}"}
+                phx-blur="reply_question"
+                phx-value-question_id={question.id}
+                phx_debonuce={1000}
+                phx-update="ignore"
+              />
             <% end %>
           </div>
           <hr class="my-4" />

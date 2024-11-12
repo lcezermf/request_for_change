@@ -108,6 +108,61 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
 
       assert Repo.aggregate(Response, :count, :id) == 2
     end
+
+    test "must create response record when type os free text", %{conn: conn} do
+      assert Repo.aggregate(Response, :count, :id) == 0
+
+      question_one = Factory.insert!(:question, %{kind: "free_text"})
+
+      {:ok, view, _html} = access_form_submission_page(conn)
+
+      view
+      |> element("#comment_#{question_one.id}")
+      |> render_blur(%{
+        "value" => "Comment",
+        "question_id" => "#{question_one.id}"
+      })
+
+      view
+      |> form("#craq_form")
+      |> render_submit()
+
+      assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
+
+      assert Repo.aggregate(Response, :count, :id) == 1
+    end
+
+    test "must create response record when type os multiple_choice and has text", %{conn: conn} do
+      assert Repo.aggregate(Response, :count, :id) == 0
+
+      question_one = Factory.insert!(:question)
+
+      option_one = Factory.insert!(:option, question_id: question_one.id)
+      Factory.insert!(:option, question_id: question_one.id)
+
+      {:ok, view, _html} = access_form_submission_page(conn)
+
+      view
+      |> element("##{option_one.id}")
+      |> render_click()
+
+      view
+      |> element("#comment_#{question_one.id}")
+      |> render_blur(%{
+        "value" => "Comment",
+        "question_id" => "#{question_one.id}"
+      })
+
+      view
+      |> form("#craq_form")
+      |> render_submit()
+
+      assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
+
+      refute has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
+
+      assert Repo.aggregate(Response, :count, :id) == 1
+    end
   end
 
   defp access_form_submission_page(conn) do
