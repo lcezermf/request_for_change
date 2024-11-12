@@ -17,6 +17,7 @@
                   phx-value-option_id={option.id}
                   phx-value-question_id={question.id}
                   checked={if @selected_options[question.id] == option.id, do: true, else: false}
+                  class="mr-2"
                 /><%= option.description %>
               </label>
             <% end %>

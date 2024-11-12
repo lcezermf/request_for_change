@@ -6,7 +6,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   alias CraqValidator.Factory
 
   describe "renders page" do
-    test "renders the page with questions", %{
+    test "must render the page with questions", %{
       conn: conn
     } do
       question_one = Factory.insert!(:question)
@@ -25,7 +25,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   end
 
   describe "rendering errors" do
-    test "render error when a single multiple choice question is not completed", %{
+    test "must render error when a single multiple choice question is not completed", %{
       conn: conn
     } do
       question_one = Factory.insert!(:question)
@@ -42,7 +42,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       assert has_element?(view, "span.error", "Required")
     end
 
-    test "render error when there are many multiple choice questions and at least one is not completed",
+    test "must render error when there are many multiple choice questions and at least one is not completed",
          %{
            conn: conn
          } do
@@ -67,6 +67,38 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
       |> render_submit()
 
       assert has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
+    end
+
+    test "must not render error when all options are selected",
+         %{
+           conn: conn
+         } do
+      question_one = Factory.insert!(:question)
+
+      option_one = Factory.insert!(:option, question_id: question_one.id)
+      Factory.insert!(:option, question_id: question_one.id)
+
+      question_two = Factory.insert!(:question)
+
+      Factory.insert!(:option, question_id: question_two.id)
+      option_four = Factory.insert!(:option, question_id: question_two.id)
+
+      {:ok, view, _html} = access_form_submission_page(conn)
+
+      view
+      |> element("##{option_one.id}")
+      |> render_click()
+
+      view
+      |> element("##{option_four.id}")
+      |> render_click()
+
+      view
+      |> form("#craq_form")
+      |> render_submit()
+
+      refute has_element?(view, "span[data-question-id=#{question_one.id}]", "Required")
+      refute has_element?(view, "span[data-question-id=#{question_two.id}]", "Required")
     end
   end
 
