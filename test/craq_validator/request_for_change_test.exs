@@ -10,7 +10,7 @@ defmodule CraqValidator.RequestForChangeTest do
 
       {:ok, form_submission} = RequestForChange.save(params)
 
-      assert form_submission.answers == params
+      assert form_submission.answers == %{1 => %{option: 2, comment: ""}}
     end
   end
 

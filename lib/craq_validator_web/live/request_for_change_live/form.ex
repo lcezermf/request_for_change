@@ -10,6 +10,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   alias CraqValidator.RequestForChange
   alias CraqValidator.RequestForChange.FormSubmission
 
+  @impl true
   def mount(_params, _session, socket) do
     questions =
       if connected?(socket) do
@@ -27,6 +28,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     {:ok, socket}
   end
 
+  @impl true
   def handle_event("select_option", params, socket) do
     selected_options = socket.assigns.selected_options
 
@@ -42,6 +44,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event(
         "save",
         _,

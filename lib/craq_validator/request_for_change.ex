@@ -20,8 +20,13 @@ defmodule CraqValidator.RequestForChange do
   @doc "Save a new form submission"
   @spec save(map()) :: {:ok, Ecto.Changeset.t()} | {:error, Ecto.Changeset.t()}
   def save(selected_options) do
+    answers =
+      Enum.reduce(selected_options, %{}, fn {key, value}, acc ->
+        Map.put(acc, key, %{option: value, comment: ""})
+      end)
+
     %FormSubmission{}
-    |> FormSubmission.changeset(%{answers: selected_options})
+    |> FormSubmission.changeset(%{answers: answers})
     |> Repo.insert()
   end
 end
