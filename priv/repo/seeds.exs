@@ -30,25 +30,3 @@ Repo.insert(%Option{
   description: "My option for question #{System.unique_integer([:positive])}",
   question_id: question_one.id
 })
-
-{:ok, question_two} =
-  Repo.insert(%Question{
-    description: "My question #{System.unique_integer([:positive])}",
-    kind: "multiple_choice"
-  })
-
-Repo.insert(%Option{
-  description: "My option for question #{System.unique_integer([:positive])}",
-  question_id: question_two.id
-})
-
-Repo.insert(%Option{
-  description: "My option for question #{System.unique_integer([:positive])}",
-  question_id: question_two.id
-})
-
-{:ok, question_three} =
-  Repo.insert(%Question{
-    description: "My question #{System.unique_integer([:positive])}",
-    kind: "free_text"
-  })
