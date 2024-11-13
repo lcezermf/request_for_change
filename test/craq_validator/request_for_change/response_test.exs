@@ -12,7 +12,9 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
       changeset = Response.changeset(%Response{}, %{})
       assert changeset.valid?
 
-      changeset = Response.changeset(%Response{}, %{question_id: question.id})
+      changeset =
+        Response.changeset(%Response{}, %{question_id: question.id, question_kind: question.kind})
+
       refute changeset.valid?
     end
 
@@ -23,7 +25,9 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
       changeset = Response.changeset(%Response{}, %{})
       assert changeset.valid?
 
-      changeset = Response.changeset(%Response{}, %{question_id: question.id})
+      changeset =
+        Response.changeset(%Response{}, %{question_id: question.id, question_kind: question.kind})
+
       assert changeset.valid?
     end
   end

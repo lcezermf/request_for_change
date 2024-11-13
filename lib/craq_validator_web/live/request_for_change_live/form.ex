@@ -34,10 +34,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         socket
       ) do
     responses = socket.assigns.responses
+    question = get_question(socket.assigns.questions, question_id)
 
     changeset =
       Response.changeset(%Response{}, %{
-        "question_id" => question_id,
+        "question_id" => question.id,
+        "question_kind" => question.kind,
         "selected_option_id" => option_id
       })
 
@@ -53,13 +55,15 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         %{"question_id" => question_id, "value" => comment},
         socket
       ) do
+    question = get_question(socket.assigns.questions, question_id)
     responses = socket.assigns.responses
 
     base_struct = Map.get(responses, String.to_integer(question_id), %Response{})
 
     changeset =
       Response.changeset(base_struct, %{
-        "question_id" => question_id,
+        "question_id" => question.id,
+        "question_kind" => question.kind,
         "comment" => comment
       })
 
@@ -110,8 +114,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       Map.put(
         acc,
         question.id,
-        Response.changeset(%Response{}, %{question_id: question.id})
+        Response.changeset(%Response{}, %{question_kind: question.kind})
       )
     end)
+  end
+
+  defp get_question(questions, question_id) do
+    Enum.find(questions, &(&1.id == String.to_integer(question_id)))
   end
 end
