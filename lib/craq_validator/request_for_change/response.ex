@@ -31,6 +31,7 @@ defmodule CraqValidator.RequestForChange.Response do
       :question_require_comment,
       :question_id
     ])
+    |> maybe_delete_previous_errors()
     |> maybe_validate_selected_option()
     |> maybe_validate_comment()
   end
@@ -48,4 +49,13 @@ defmodule CraqValidator.RequestForChange.Response do
   end
 
   defp maybe_validate_comment(changeset), do: changeset
+
+  defp maybe_delete_previous_errors(%Ecto.Changeset{valid?: true} = changeset), do: changeset
+
+  defp maybe_delete_previous_errors(%Ecto.Changeset{changes: changes, errors: errors} = changeset) do
+    changed_values_keys = Map.keys(changes)
+    remaining_errors = Enum.reject(errors, fn {key, _} -> key in changed_values_keys end)
+
+    %{changeset | errors: remaining_errors, valid?: remaining_errors == []}
+  end
 end

@@ -38,9 +38,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     changeset =
       Response.changeset(%Response{}, %{
-        "question_id" => question.id,
-        "question_kind" => question.kind,
-        "selected_option_id" => option_id
+        question_id: question.id,
+        question_kind: question.kind,
+        question_require_comment: question.require_comment,
+        selected_option_id: option_id
       })
 
     socket =
@@ -62,9 +63,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     changeset =
       Response.changeset(base_struct, %{
-        "question_id" => question.id,
-        "question_kind" => question.kind,
-        "comment" => comment
+        question_id: question.id,
+        question_kind: question.kind,
+        question_require_comment: question.require_comment,
+        comment: comment
       })
 
     socket =
@@ -114,7 +116,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       Map.put(
         acc,
         question.id,
-        Response.changeset(%Response{}, %{question_kind: question.kind})
+        Response.changeset(%Response{}, %{
+          question_kind: question.kind,
+          question_require_comment: question.require_comment
+        })
       )
     end)
   end

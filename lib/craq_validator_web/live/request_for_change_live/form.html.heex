@@ -21,9 +21,22 @@
                   /><%= option.description %>
                 </label>
               <% end %>
+              <%= if @has_submitted and @responses[question.id].errors[:selected_option_id] do %>
+                <div
+                  class="mt-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                  role="alert"
+                >
+                  <span data-question-id={question.id}>
+                    <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
+                  </span>
+                </div>
+              <% end %>
+
               <div class="mt-2">
                 <label class="block">Comment</label>
-                <label class="block">(Optional)</label>
+                <%= unless question.require_comment do %>
+                  <label class="block">(Optional)</label>
+                <% end %>
                 <textarea
                   name={input_name(f, "#{question.id}")}
                   id={"comment_#{question.id}"}
@@ -34,13 +47,13 @@
                   class="mt-2"
                 />
               </div>
-              <%= if @has_submitted and @responses[question.id].errors[:selected_option_id] do %>
+              <%= if @has_submitted and @responses[question.id].errors[:comment] do %>
                 <div
-                  class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                  class="mt-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
                   role="alert"
                 >
-                  <span data-question-id={question.id}>
-                    <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
+                  <span data-comment-question-id={question.id}>
+                    <%= inspect(@responses[question.id].errors[:comment]) %>
                   </span>
                 </div>
               <% end %>
