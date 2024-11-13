@@ -16,17 +16,55 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
         Response.changeset(%Response{}, %{question_id: question.id, question_kind: question.kind})
 
       refute changeset.valid?
+      assert %{selected_option_id: ["can't be blank"]} == errors_on(changeset)
     end
 
     test "must not validate selected_option_id when question is of type free_text" do
       question = Factory.insert!(:question, %{kind: "free_text"})
-      Factory.insert!(:option, %{question: question})
 
       changeset = Response.changeset(%Response{}, %{})
       assert changeset.valid?
 
       changeset =
         Response.changeset(%Response{}, %{question_id: question.id, question_kind: question.kind})
+
+      assert changeset.valid?
+    end
+
+    test "must validate comment when question is multiple choice and require comment" do
+      question = Factory.insert!(:question, %{kind: "multiple_choice", require_comment: true})
+      option = Factory.insert!(:option, %{question: question})
+
+      changeset = Response.changeset(%Response{}, %{})
+      assert changeset.valid?
+
+      changeset =
+        Response.changeset(%Response{}, %{
+          selected_option_id: option.id,
+          question_id: question.id,
+          question_kind: question.kind,
+          question_require_comment: question.require_comment
+        })
+
+      refute changeset.valid?
+      assert %{comment: ["can't be blank"]} == errors_on(changeset)
+    end
+
+    test "must not validate when question is multiple choice and require comment and return valid" do
+      question = Factory.insert!(:question, %{kind: "multiple_choice", require_comment: true})
+      option = Factory.insert!(:option, %{question: question})
+
+      changeset = Response.changeset(%Response{}, %{})
+      assert changeset.valid?
+
+      changeset =
+        Response.changeset(%Response{}, %{
+          selected_option_id: option.id,
+          question_id: question.id,
+          question_kind: question.kind,
+          question_require_comment: question.require_comment,
+          comment: "OK"
+        })
 
       assert changeset.valid?
     end

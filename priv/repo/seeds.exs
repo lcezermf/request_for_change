@@ -22,7 +22,8 @@ Repo.delete_all(Question)
 {:ok, question_one} =
   Repo.insert(%Question{
     description: "My question #{System.unique_integer([:positive])}",
-    kind: "multiple_choice"
+    kind: "multiple_choice",
+    require_comment: true
   })
 
 Repo.insert(%Option{
@@ -35,8 +36,8 @@ Repo.insert(%Option{
   question_id: question_one.id
 })
 
-{:ok, question_two} =
-  Repo.insert(%Question{
-    description: "My question #{System.unique_integer([:positive])}",
-    kind: "free_text"
-  })
+# {:ok, question_two} =
+#   Repo.insert(%Question{
+#     description: "My question #{System.unique_integer([:positive])}",
+#     kind: "free_text"
+#   })

@@ -12,6 +12,7 @@ defmodule CraqValidator.RequestForChange.Question do
   schema "questions" do
     field :description, :string
     field :kind, :string
+    field :require_comment, :boolean, default: false
 
     has_many :options, CraqValidator.RequestForChange.Option
 
@@ -21,6 +22,6 @@ defmodule CraqValidator.RequestForChange.Question do
   @doc false
   def changeset(question, attrs) do
     question
-    |> cast(attrs, [:description])
+    |> cast(attrs, [:description, :kind, :require_comment])
   end
 end
