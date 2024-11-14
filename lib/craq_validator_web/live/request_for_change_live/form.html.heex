@@ -27,7 +27,7 @@
                   role="alert"
                 >
                   <span data-question-id={question.id}>
-                    <%= inspect(@responses[question.id].errors[:selected_option_id]) %>
+                    <%= translate_errors(@responses[question.id].errors, :selected_option_id) %>
                   </span>
                 </div>
               <% end %>
@@ -38,6 +38,7 @@
                   <label class="block">(Optional)</label>
                 <% end %>
                 <textarea
+                  cols="38"
                   name={input_name(f, "#{question.id}")}
                   id={"comment_#{question.id}"}
                   phx-blur="reply_question"
@@ -53,7 +54,7 @@
                   role="alert"
                 >
                   <span data-comment-question-id={question.id}>
-                    <%= inspect(@responses[question.id].errors[:comment]) %>
+                    <%= translate_errors(@responses[question.id].errors, :comment) %>
                   </span>
                 </div>
               <% end %>
@@ -62,6 +63,7 @@
                 <label class="block">Comment</label>
                 <label class="block">(Optional)</label>
                 <textarea
+                  cols="38"
                   name={input_name(f, "#{question.id}")}
                   id={"comment_#{question.id}"}
                   phx-blur="reply_question"
