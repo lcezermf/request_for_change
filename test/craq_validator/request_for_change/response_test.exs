@@ -5,7 +5,7 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
   alias CraqValidator.Factory
 
   describe "validations" do
-    test "must validate selected_option_id when question is of type multiple choice" do
+    test "must validate option_id when question is of type multiple choice" do
       question = Factory.insert!(:question, %{kind: "multiple_choice"})
       Factory.insert!(:option, %{question: question})
 
@@ -16,10 +16,10 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
         Response.changeset(%Response{}, %{question_id: question.id, question_kind: question.kind})
 
       refute changeset.valid?
-      assert %{selected_option_id: ["can't be blank"]} == errors_on(changeset)
+      assert %{option_id: ["can't be blank"]} == errors_on(changeset)
     end
 
-    test "must not validate selected_option_id when question is of type free_text" do
+    test "must not validate option_id when question is of type free_text" do
       question = Factory.insert!(:question, %{kind: "free_text"})
 
       changeset = Response.changeset(%Response{}, %{})
@@ -40,7 +40,7 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
 
       changeset =
         Response.changeset(%Response{}, %{
-          selected_option_id: option.id,
+          option_id: option.id,
           question_id: question.id,
           question_kind: question.kind,
           question_require_comment: question.require_comment
@@ -59,7 +59,7 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
 
       changeset =
         Response.changeset(%Response{}, %{
-          selected_option_id: option.id,
+          option_id: option.id,
           question_id: question.id,
           question_kind: question.kind,
           question_require_comment: question.require_comment,

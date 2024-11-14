@@ -10,6 +10,7 @@ defmodule CraqValidator.RequestForChange.Option do
 
   schema "options" do
     field :description, :string
+    field :is_terminal, :boolean, default: false
 
     belongs_to :question, CraqValidator.RequestForChange.Question
 
@@ -19,6 +20,6 @@ defmodule CraqValidator.RequestForChange.Option do
   @doc false
   def changeset(option, attrs) do
     option
-    |> cast(attrs, [:description])
+    |> cast(attrs, [:description, :is_terminal])
   end
 end

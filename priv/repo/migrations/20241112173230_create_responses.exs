@@ -3,7 +3,7 @@ defmodule CraqValidator.Repo.Migrations.CreateResponses do
 
   def change do
     create table(:responses) do
-      add :selected_option_id, :integer
+      add :option_id, :integer
       add :comment, :text
       add :question_id, references(:questions, on_delete: :nothing)
 

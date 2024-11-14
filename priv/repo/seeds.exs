@@ -21,7 +21,7 @@ Repo.delete_all(Question)
 
 {:ok, question_one} =
   Repo.insert(%Question{
-    description: "My question #{System.unique_integer([:positive])}",
+    description: "This is an example of multiple choice question with comment required",
     kind: "multiple_choice",
     require_comment: true
   })
@@ -36,8 +36,42 @@ Repo.insert(%Option{
   question_id: question_one.id
 })
 
-# {:ok, question_two} =
-#   Repo.insert(%Question{
-#     description: "My question #{System.unique_integer([:positive])}",
-#     kind: "free_text"
-#   })
+{:ok, question_two} =
+  Repo.insert(%Question{
+    description: "This is an example of multiple choice question without comment required",
+    kind: "multiple_choice"
+  })
+
+Repo.insert(%Option{
+  description: "My option for question #{System.unique_integer([:positive])}",
+  question_id: question_two.id
+})
+
+Repo.insert(%Option{
+  description: "My option for question #{System.unique_integer([:positive])}",
+  question_id: question_two.id
+})
+
+{:ok, question_three} =
+  Repo.insert(%Question{
+    description:
+      "This is an example of multiple choice question without comment required and a terminal option",
+    kind: "multiple_choice"
+  })
+
+Repo.insert(%Option{
+  description: "My option for question #{System.unique_integer([:positive])}",
+  question_id: question_three.id
+})
+
+Repo.insert(%Option{
+  description: "This is a terminal option",
+  question_id: question_three.id,
+  is_terminal: true
+})
+
+{:ok, question_four} =
+  Repo.insert(%Question{
+    description: "This is an example of free text question",
+    kind: "free_text"
+  })

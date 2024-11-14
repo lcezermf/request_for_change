@@ -10,7 +10,7 @@ defmodule CraqValidator.RequestForChange.Response do
   @type t :: %__MODULE__{}
 
   schema "responses" do
-    field :selected_option_id, :integer
+    field :option_id, :integer
     field :comment, :string
 
     field :question_kind, :string, virtual: true
@@ -25,7 +25,7 @@ defmodule CraqValidator.RequestForChange.Response do
   def changeset(response, attrs) do
     response
     |> cast(attrs, [
-      :selected_option_id,
+      :option_id,
       :comment,
       :question_kind,
       :question_require_comment,
@@ -38,7 +38,7 @@ defmodule CraqValidator.RequestForChange.Response do
 
   defp maybe_validate_selected_option(%{changes: %{question_kind: "multiple_choice"}} = changeset) do
     changeset
-    |> validate_required(:selected_option_id)
+    |> validate_required(:option_id)
   end
 
   defp maybe_validate_selected_option(changeset), do: changeset

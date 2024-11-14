@@ -41,7 +41,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         question_id: question.id,
         question_kind: question.kind,
         question_require_comment: question.require_comment,
-        selected_option_id: option_id
+        option_id: option_id
       })
 
     socket =

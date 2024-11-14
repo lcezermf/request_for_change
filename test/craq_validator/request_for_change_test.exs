@@ -46,14 +46,14 @@ defmodule CraqValidator.RequestForChangeTest do
         question_one.id =>
           Response.changeset(%Response{}, %{
             "question_id" => question_one.id,
-            "selected_option_id" => option_one.id
+            "option_id" => option_one.id
           })
       }
 
       [result] = RequestForChange.save_responses(responses)
 
       assert result.question_id == question_one.id
-      assert result.selected_option_id == option_one.id
+      assert result.option_id == option_one.id
     end
 
     test "must save a multiple valid response" do
@@ -70,12 +70,12 @@ defmodule CraqValidator.RequestForChangeTest do
         question_one.id =>
           Response.changeset(%Response{}, %{
             "question_id" => question_one.id,
-            "selected_option_id" => option_one.id
+            "option_id" => option_one.id
           }),
         question_two.id =>
           Response.changeset(%Response{}, %{
             "question_id" => question_two.id,
-            "selected_option_id" => option_two.id
+            "option_id" => option_two.id
           }),
         question_three =>
           Response.changeset(%Response{}, %{
