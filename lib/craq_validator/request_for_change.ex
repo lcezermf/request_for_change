@@ -15,6 +15,7 @@ defmodule CraqValidator.RequestForChange do
   def list_questions do
     Question
     |> preload([:options])
+    |> order_by([q], asc: q.id)
     |> Repo.all()
   end
 

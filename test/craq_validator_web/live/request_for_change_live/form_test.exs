@@ -227,6 +227,48 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     assert Repo.aggregate(Response, :count, :id) == 0
   end
 
+  test "must disable following questions upon picking a terminal option", %{conn: conn} do
+    question_one = Factory.insert!(:question)
+
+    option_one = Factory.insert!(:option, question_id: question_one.id)
+    option_two = Factory.insert!(:option, question_id: question_one.id)
+
+    question_two = Factory.insert!(:question)
+
+    option_three = Factory.insert!(:option, question_id: question_two.id)
+    option_four = Factory.insert!(:option, question_id: question_two.id, is_terminal: true)
+
+    question_three = Factory.insert!(:question)
+
+    option_five = Factory.insert!(:option, question_id: question_three.id)
+    option_six = Factory.insert!(:option, question_id: question_three.id)
+
+    {:ok, view, _html} = access_form_submission_page(conn)
+
+    assert has_element?(view, "##{option_one.id}")
+    assert has_element?(view, "##{option_two.id}")
+    assert has_element?(view, "##{option_three.id}")
+    assert has_element?(view, "##{option_four.id}")
+    assert has_element?(view, "##{option_five.id}")
+    assert has_element?(view, "##{option_six.id}")
+
+    assert has_element?(view, "#fieldset-#{question_one.id}")
+    assert has_element?(view, "#fieldset-#{question_two.id}")
+    assert has_element?(view, "#fieldset-#{question_three.id}")
+
+    refute has_element?(view, "#fieldset-#{question_one.id}[disabled]")
+    refute has_element?(view, "#fieldset-#{question_two.id}[disabled]")
+    refute has_element?(view, "#fieldset-#{question_three.id}[disabled]")
+
+    view
+    |> element("##{option_four.id}")
+    |> render_click()
+
+    refute has_element?(view, "#fieldset-#{question_one.id}[disabled]")
+    refute has_element?(view, "#fieldset-#{question_two.id}[disabled]")
+    assert has_element?(view, "#fieldset-#{question_three.id}[disabled]")
+  end
+
   defp access_form_submission_page(conn) do
     conn
     |> get(~p"/request_for_change")

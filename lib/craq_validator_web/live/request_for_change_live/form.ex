@@ -23,6 +23,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:questions, questions)
       |> assign(:responses, build_responses_changeset(questions))
       |> assign(:has_submitted, false)
+      |> assign(:disabled_questions_ids, %{})
 
     {:ok, socket}
   end
@@ -35,6 +36,9 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       ) do
     responses = socket.assigns.responses
     question = get_question(socket.assigns.questions, question_id)
+    option = RequestForChange.get_option_by_id(option_id)
+
+    disabled_questions_ids = get_disabled_questions_ids(socket.assigns.questions, option)
 
     changeset =
       Response.changeset(%Response{}, %{
@@ -47,6 +51,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     socket =
       socket
       |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
+      |> assign(:disabled_questions_ids, disabled_questions_ids)
 
     {:noreply, socket}
   end
@@ -126,5 +131,15 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
   defp get_question(questions, question_id) do
     Enum.find(questions, &(&1.id == String.to_integer(question_id)))
+  end
+
+  defp get_disabled_questions_ids(questions, %{is_terminal: true, question_id: question_id}) do
+    questions
+    |> Enum.map(& &1.id)
+    |> Enum.filter(&(&1 > question_id))
+  end
+
+  defp get_disabled_questions_ids(_questions, %{is_terminal: false}) do
+    []
   end
 end
