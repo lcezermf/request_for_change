@@ -227,7 +227,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     assert Repo.aggregate(Response, :count, :id) == 0
   end
 
-  test "must disable following questions upon picking a terminal option", %{conn: conn} do
+  test "must disable following questions upon picking a terminal option and only store the valid ones",
+       %{conn: conn} do
     question_one = Factory.insert!(:question)
 
     option_one = Factory.insert!(:option, question_id: question_one.id)
@@ -261,12 +262,24 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     refute has_element?(view, "#fieldset-#{question_three.id}[disabled]")
 
     view
+    |> element("##{option_two.id}")
+    |> render_click()
+
+    view
     |> element("##{option_four.id}")
     |> render_click()
 
     refute has_element?(view, "#fieldset-#{question_one.id}[disabled]")
     refute has_element?(view, "#fieldset-#{question_two.id}[disabled]")
     assert has_element?(view, "#fieldset-#{question_three.id}[disabled]")
+
+    view
+    |> form("#craq_form")
+    |> render_submit()
+
+    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
+
+    assert Repo.aggregate(Response, :count, :id) == 2
   end
 
   defp access_form_submission_page(conn) do

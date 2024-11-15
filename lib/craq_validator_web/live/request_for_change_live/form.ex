@@ -88,18 +88,24 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         %{
           assigns: %{
             questions: questions,
-            responses: responses
+            responses: responses,
+            disabled_questions_ids: disabled_questions_ids
           }
         } = socket
       ) do
-    all_valid? =
-      Enum.all?(responses, fn {_question_id, response} ->
-        response.valid?
+    # refactor to return a list
+    responses_not_disabled =
+      Enum.filter(responses, fn {question_id, _response} ->
+        question_id not in disabled_questions_ids
       end)
+      |> Enum.into(%{})
+
+    all_valid? =
+      Enum.all?(responses_not_disabled, fn {_question_id, response} -> response.valid? end)
 
     socket =
       if all_valid? do
-        RequestForChange.save_responses(responses)
+        RequestForChange.save_responses(responses_not_disabled)
 
         socket
         |> assign(:questions, questions)
