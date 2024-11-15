@@ -68,5 +68,29 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
 
       assert changeset.valid?
     end
+
+    test "must remove validations when option of question is a terminal option" do
+      question = Factory.insert!(:question, %{kind: "multiple_choice", require_comment: true})
+      option = Factory.insert!(:option, %{question: question})
+      option_terminal = Factory.insert!(:option, %{question: question, is_terminal: true})
+
+      changeset =
+        Response.changeset(%Response{}, %{
+          option_id: option.id,
+          question_id: question.id,
+          question_kind: question.kind,
+          question_require_comment: question.require_comment
+        })
+
+      refute changeset.valid?
+      assert %{comment: ["can't be blank"]} == errors_on(changeset)
+
+      changeset =
+        Response.changeset(changeset, %{
+          option_is_terminal: option_terminal.is_terminal
+        })
+
+      assert changeset.valid?
+    end
   end
 end

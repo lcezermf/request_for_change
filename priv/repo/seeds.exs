@@ -38,7 +38,8 @@ Repo.insert(%Option{
 
 {:ok, question_two} =
   Repo.insert(%Question{
-    description: "This is an example of multiple choice question without comment required",
+    description:
+      "This is an example of multiple choice question without comment required and a terminal option",
     kind: "multiple_choice"
   })
 
@@ -48,14 +49,14 @@ Repo.insert(%Option{
 })
 
 Repo.insert(%Option{
-  description: "My option for question #{System.unique_integer([:positive])}",
-  question_id: question_two.id
+  description: "This is a terminal option",
+  question_id: question_two.id,
+  is_terminal: true
 })
 
 {:ok, question_three} =
   Repo.insert(%Question{
-    description:
-      "This is an example of multiple choice question without comment required and a terminal option",
+    description: "This is an example of multiple choice question without comment required",
     kind: "multiple_choice"
   })
 
@@ -65,9 +66,8 @@ Repo.insert(%Option{
 })
 
 Repo.insert(%Option{
-  description: "This is a terminal option",
-  question_id: question_three.id,
-  is_terminal: true
+  description: "My option for question #{System.unique_integer([:positive])}",
+  question_id: question_three.id
 })
 
 {:ok, question_four} =

@@ -15,6 +15,7 @@ defmodule CraqValidator.RequestForChange.Response do
 
     field :question_kind, :string, virtual: true
     field :question_require_comment, :boolean, virtual: true
+    field :option_is_terminal, :boolean, virtual: true
 
     belongs_to :question, CraqValidator.RequestForChange.Question
 
@@ -29,11 +30,13 @@ defmodule CraqValidator.RequestForChange.Response do
       :comment,
       :question_kind,
       :question_require_comment,
-      :question_id
+      :question_id,
+      :option_is_terminal
     ])
     |> maybe_delete_previous_errors()
     |> maybe_validate_selected_option()
     |> maybe_validate_comment()
+    |> maybe_remove_validations()
   end
 
   defp maybe_validate_selected_option(%{changes: %{question_kind: "multiple_choice"}} = changeset) do
@@ -50,12 +53,18 @@ defmodule CraqValidator.RequestForChange.Response do
 
   defp maybe_validate_comment(changeset), do: changeset
 
-  defp maybe_delete_previous_errors(%Ecto.Changeset{valid?: true} = changeset), do: changeset
+  defp maybe_delete_previous_errors(%{valid?: true} = changeset), do: changeset
 
-  defp maybe_delete_previous_errors(%Ecto.Changeset{changes: changes, errors: errors} = changeset) do
+  defp maybe_delete_previous_errors(%{changes: changes, errors: errors} = changeset) do
     changed_values_keys = Map.keys(changes)
     remaining_errors = Enum.reject(errors, fn {key, _} -> key in changed_values_keys end)
 
     %{changeset | errors: remaining_errors, valid?: remaining_errors == []}
   end
+
+  defp maybe_remove_validations(%{changes: %{option_is_terminal: true}} = changeset) do
+    %{changeset | errors: [], valid?: true}
+  end
+
+  defp maybe_remove_validations(changeset), do: changeset
 end

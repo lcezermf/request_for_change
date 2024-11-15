@@ -4,6 +4,8 @@ defmodule CraqValidator.RequestForChange do
   """
 
   alias CraqValidator.RequestForChange.Question
+  alias CraqValidator.RequestForChange.Response
+  alias CraqValidator.RequestForChange.Option
   alias CraqValidator.Repo
 
   import Ecto.Query
@@ -24,6 +26,15 @@ defmodule CraqValidator.RequestForChange do
     Repo.get(Question, id)
   end
 
+  @doc "Return option by given id"
+  @spec get_option_by_id(integer()) :: Option.t() | nil
+  def get_option_by_id(nil), do: nil
+
+  def get_option_by_id(id) do
+    Repo.get(Option, id)
+  end
+
+  @spec save_responses(map) :: [Response.t()] | []
   def save_responses(responses) do
     Enum.map(responses, fn {_, response} ->
       {:ok, response} = Repo.insert(response)

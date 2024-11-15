@@ -21,6 +21,20 @@ defmodule CraqValidator.RequestForChangeTest do
     end
   end
 
+  describe "get_option_by_id/1" do
+    test "must return nil when nil is given" do
+      assert is_nil(RequestForChange.get_option_by_id(nil))
+    end
+
+    test "must return option by given id" do
+      option_one = option_factory()
+
+      result = RequestForChange.get_option_by_id(option_one.id)
+
+      assert result.id == option_one.id
+    end
+  end
+
   describe "list_questions/0" do
     test "must return empty" do
       assert Enum.empty?(RequestForChange.list_questions())
@@ -96,5 +110,5 @@ defmodule CraqValidator.RequestForChangeTest do
   end
 
   defp question_factory(attrs \\ %{}), do: Factory.insert!(:question, attrs)
-  defp option_factory(attrs), do: Factory.insert!(:option, attrs)
+  defp option_factory(attrs \\ %{}), do: Factory.insert!(:option, attrs)
 end
