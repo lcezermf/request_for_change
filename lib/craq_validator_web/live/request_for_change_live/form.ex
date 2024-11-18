@@ -24,6 +24,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:responses, build_responses_changeset(questions))
       |> assign(:has_submitted, false)
       |> assign(:disabled_questions_ids, %{})
+      |> assign(:disabled_question_id, nil)
 
     {:ok, socket}
   end
@@ -38,7 +39,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     question = get_question(socket.assigns.questions, question_id)
     option = RequestForChange.get_option_by_id(option_id)
 
-    disabled_questions_ids = get_disabled_questions_ids(socket.assigns.questions, option)
+    {disabled_questions_ids, disabled_question_id} = get_disabled_questions_ids(socket, option)
 
     changeset =
       Response.changeset(%Response{}, %{
@@ -52,6 +53,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       socket
       |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
       |> assign(:disabled_questions_ids, disabled_questions_ids)
+      |> assign(:disabled_question_id, disabled_question_id)
 
     {:noreply, socket}
   end
@@ -139,13 +141,32 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     Enum.find(questions, &(&1.id == String.to_integer(question_id)))
   end
 
-  defp get_disabled_questions_ids(questions, %{is_terminal: true, question_id: question_id}) do
-    questions
-    |> Enum.map(& &1.id)
-    |> Enum.filter(&(&1 > question_id))
+  defp get_disabled_questions_ids(socket, %{
+         is_terminal: true,
+         question_id: question_id
+       }) do
+    disabled_questions =
+      socket.assigns.questions
+      |> Enum.map(& &1.id)
+      |> Enum.filter(&(&1 > question_id))
+
+    {disabled_questions, question_id}
   end
 
-  defp get_disabled_questions_ids(_questions, %{is_terminal: false}) do
-    []
+  defp get_disabled_questions_ids(
+         socket,
+         %{
+           is_terminal: false,
+           question_id: question_id
+         }
+       ) do
+    %{disabled_questions_ids: disabled_questions_ids, disabled_question_id: disabled_question_id} =
+      socket.assigns
+
+    if disabled_question_id == question_id do
+      {[], nil}
+    else
+      {disabled_questions_ids, disabled_question_id}
+    end
   end
 end
