@@ -23,7 +23,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:questions, questions)
       |> assign(:responses, build_responses_changeset(questions))
       |> assign(:has_submitted, false)
-      |> assign(:disabled_questions_ids, %{})
+      |> assign(:disabled_questions_ids, [])
       |> assign(:disabled_question_id, nil)
 
     {:ok, socket}
