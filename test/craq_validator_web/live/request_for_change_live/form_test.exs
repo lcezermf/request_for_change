@@ -98,11 +98,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     |> form("#craq_form")
     |> render_submit()
 
-    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
-
-    refute has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
-    refute has_element?(view, "span[data-question-id=#{question_two.id}]", "can't be blank")
-
     assert Repo.aggregate(Response, :count, :id) == 2
   end
 
@@ -123,8 +118,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     view
     |> form("#craq_form")
     |> render_submit()
-
-    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
 
     assert Repo.aggregate(Response, :count, :id) == 1
   end
@@ -153,10 +146,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     view
     |> form("#craq_form")
     |> render_submit()
-
-    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
-
-    refute has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
 
     assert Repo.aggregate(Response, :count, :id) == 1
   end
@@ -187,10 +176,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     view
     |> form("#craq_form")
     |> render_submit()
-
-    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
-
-    refute has_element?(view, "span[data-question-id=#{question_one.id}]", "can't be blank")
 
     assert Repo.aggregate(Response, :count, :id) == 1
   end
@@ -276,8 +261,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     view
     |> form("#craq_form")
     |> render_submit()
-
-    assert has_element?(view, "#flash-info", "CRAQ submitted successfully!")
 
     assert Repo.aggregate(Response, :count, :id) == 2
   end

@@ -114,6 +114,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         |> assign(:responses, build_responses_changeset(questions))
         |> assign(:has_submitted, false)
         |> put_flash(:info, "CRAQ submitted successfully!")
+        |> push_navigate(to: ~p"/request_for_change")
       else
         socket
         |> assign(:has_submitted, true)
