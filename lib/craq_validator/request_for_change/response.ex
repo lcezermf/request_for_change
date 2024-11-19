@@ -18,6 +18,7 @@ defmodule CraqValidator.RequestForChange.Response do
     field :question_kind, :string, virtual: true
     field :question_require_comment, :boolean, virtual: true
     field :option_is_terminal, :boolean, virtual: true
+    field :form_public_id, :binary_id
 
     belongs_to :question, CraqValidator.RequestForChange.Question
 
@@ -33,7 +34,8 @@ defmodule CraqValidator.RequestForChange.Response do
       :question_kind,
       :question_require_comment,
       :question_id,
-      :option_is_terminal
+      :option_is_terminal,
+      :form_public_id
     ])
     |> maybe_delete_previous_errors()
     |> maybe_validate_selected_option()

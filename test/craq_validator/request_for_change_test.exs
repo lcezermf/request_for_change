@@ -7,9 +7,9 @@ defmodule CraqValidator.RequestForChangeTest do
   alias CraqValidator.RequestForChange
   alias CraqValidator.RequestForChange.Response
 
-  describe "build_responses/1" do
+  describe "build_responses/2" do
     test "must return empty map when given empty list data" do
-      assert RequestForChange.build_responses([]) == %{}
+      assert RequestForChange.build_responses([], nil) == %{}
     end
 
     test "must build changesets with given data" do
@@ -18,10 +18,14 @@ defmodule CraqValidator.RequestForChangeTest do
 
       questions = [question_one, question_two]
 
-      responses = RequestForChange.build_responses(questions)
+      form_public_id = Ecto.UUID.generate()
+
+      responses = RequestForChange.build_responses(questions, form_public_id)
 
       assert Map.has_key?(responses, question_one.id)
       assert Map.has_key?(responses, question_two.id)
+      assert Map.get(responses, question_one.id).changes[:form_public_id] == form_public_id
+      assert Map.get(responses, question_two.id).changes[:form_public_id] == form_public_id
     end
   end
 

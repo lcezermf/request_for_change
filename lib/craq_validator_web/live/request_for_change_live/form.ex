@@ -11,20 +11,21 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
   @impl true
   def mount(_params, _session, socket) do
-    questions =
+    {questions, form_public_id} =
       if connected?(socket) do
-        RequestForChange.list_questions()
+        {RequestForChange.list_questions(), RequestForChange.generate_form_public_id()}
       else
-        []
+        {[], nil}
       end
 
     socket =
       socket
       |> assign(:questions, questions)
-      |> assign(:responses, RequestForChange.build_responses(questions))
+      |> assign(:responses, RequestForChange.build_responses(questions, form_public_id))
       |> assign(:has_submitted, false)
       |> assign(:disabled_questions_ids, [])
       |> assign(:disabled_question_id, nil)
+      |> assign(:form_public_id, form_public_id)
 
     {:ok, socket}
   end
@@ -43,6 +44,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     changeset =
       Response.changeset(%Response{}, %{
+        form_public_id: socket.assigns.form_public_id,
         question_id: question.id,
         question_kind: question.kind,
         question_require_comment: question.require_comment,
@@ -70,6 +72,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     changeset =
       Response.changeset(base_struct, %{
+        form_public_id: socket.assigns.form_public_id,
         question_id: question.id,
         question_kind: question.kind,
         question_require_comment: question.require_comment,
@@ -91,7 +94,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           assigns: %{
             questions: questions,
             responses: responses,
-            disabled_questions_ids: disabled_questions_ids
+            disabled_questions_ids: disabled_questions_ids,
+            form_public_id: form_public_id
           }
         } = socket
       ) do
@@ -111,7 +115,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
         socket
         |> assign(:questions, questions)
-        |> assign(:responses, RequestForChange.build_responses(questions))
+        |> assign(
+          :responses,
+          RequestForChange.build_responses(questions, form_public_id)
+        )
         |> assign(:has_submitted, false)
         |> put_flash(:info, "CRAQ submitted successfully!")
         |> push_navigate(to: ~p"/request_for_change")

@@ -19,15 +19,16 @@ defmodule CraqValidator.RequestForChange do
   Returns a map where the keys are question IDs and the values are changesets
   for the `Response` schema, preloaded with the question's attributes.
   """
-  @spec build_responses([Question.t()]) :: map()
-  def build_responses([]), do: %{}
+  @spec build_responses([Question.t()], binary()) :: map()
+  def build_responses([], _), do: %{}
 
-  def build_responses(questions) do
+  def build_responses(questions, form_public_id) do
     Enum.reduce(questions, %{}, fn question, acc ->
       Map.put(
         acc,
         question.id,
         Response.changeset(%Response{}, %{
+          form_public_id: form_public_id,
           question_kind: question.kind,
           question_require_comment: question.require_comment
         })
@@ -130,4 +131,12 @@ defmodule CraqValidator.RequestForChange do
       }) do
     {disabled_questions_ids, disabled_question_id}
   end
+
+  @doc """
+  Generates a public_id that will be used for a group of responses.
+
+  This public id will identify that a set of questions belongs to the same submission.
+  """
+  @spec generate_form_public_id() :: binary()
+  def generate_form_public_id, do: Ecto.UUID.generate()
 end
