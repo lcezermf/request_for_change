@@ -1,9 +1,9 @@
 defmodule CraqValidator.RequestForChange do
   @moduledoc """
-  Context to handle business logic
+  Context to handle business logic.
 
-  This context must run the core operations such as filtering data, mounting the data to be used on the LV module
-  and store data.
+  This context must run core operations such as filtering data, mounting the data to be used in the LiveView module,
+  and storing data.
   """
 
   alias CraqValidator.RequestForChange.Question
@@ -13,7 +13,12 @@ defmodule CraqValidator.RequestForChange do
 
   import Ecto.Query
 
-  @doc "Build the initial responses based on a list of loaded questions"
+  @doc """
+  Builds the initial responses based on a list of loaded questions.
+
+  Returns a map where the keys are question IDs and the values are changesets
+  for the `Response` schema, preloaded with the question's attributes.
+  """
   @spec build_responses([Question.t()]) :: map()
   def build_responses([]), do: %{}
 
@@ -30,8 +35,13 @@ defmodule CraqValidator.RequestForChange do
     end)
   end
 
-  @doc "Returns a question extracting from a given list of questions"
-  @spec get_question_from_list([Question.t()], integer()) :: Question.t() | nil
+  @doc """
+  Retrieves a question from a list of questions by its ID.
+
+  The `question_id` can be either an integer or a binary string.
+  Returns `nil` if no matching question is found.
+  """
+  @spec get_question_from_list([Question.t()], integer() | binary()) :: Question.t() | nil
   def get_question_from_list(questions, question_id) when is_binary(question_id) do
     get_question_from_list(questions, String.to_integer(question_id))
   end
@@ -65,7 +75,11 @@ defmodule CraqValidator.RequestForChange do
     Repo.get(Option, id)
   end
 
-  @doc "Save a group of responses"
+  @doc """
+  Saves a group of responses.
+  Accepts a map of responses where each value is a valid `Response` changeset.
+  Returns a list of the inserted responses.
+  """
   @spec save_responses(map) :: [Response.t()] | []
   def save_responses(responses) do
     Enum.map(responses, fn {_, response} ->
