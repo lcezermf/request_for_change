@@ -65,11 +65,55 @@ defmodule CraqValidator.RequestForChange do
     Repo.get(Option, id)
   end
 
+  @doc "Save a group of responses"
   @spec save_responses(map) :: [Response.t()] | []
   def save_responses(responses) do
     Enum.map(responses, fn {_, response} ->
       {:ok, response} = Repo.insert(response)
       response
     end)
+  end
+
+  @doc """
+  Determines which questions should be disabled based on the given parameters.
+
+  Expects a map containing:
+    - `:questions` - A list of questions with IDs.
+    - `:is_terminal` - A boolean indicating if the option is terminal.
+    - `:question_id` - The ID of the question related to the selected option.
+    - `:disabled_questions_ids` - (Optional) A list of already disabled question IDs.
+    - `:disabled_question_id` - (Optional) The ID of the currently disabled question.
+
+  Returns a tuple `{list_of_disabled_question_ids, disabled_question_id}`.
+  """
+  @spec get_disabled_questions_ids(map()) :: tuple()
+  def get_disabled_questions_ids(%{
+        questions: questions,
+        is_terminal: true,
+        question_id: question_id
+      }) do
+    disabled_questions =
+      questions
+      |> Enum.map(& &1.id)
+      |> Enum.filter(&(&1 > question_id))
+
+    {disabled_questions, question_id}
+  end
+
+  def get_disabled_questions_ids(%{
+        is_terminal: false,
+        question_id: question_id,
+        disabled_question_id: question_id
+      }) do
+    {[], nil}
+  end
+
+  def get_disabled_questions_ids(%{
+        is_terminal: false,
+        question_id: _question_id,
+        disabled_questions_ids: disabled_questions_ids,
+        disabled_question_id: disabled_question_id
+      }) do
+    {disabled_questions_ids, disabled_question_id}
   end
 end

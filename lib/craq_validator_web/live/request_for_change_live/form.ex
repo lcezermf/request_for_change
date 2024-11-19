@@ -123,32 +123,13 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     {:noreply, socket}
   end
 
-  defp get_disabled_questions_ids(socket, %{
-         is_terminal: true,
-         question_id: question_id
-       }) do
-    disabled_questions =
-      socket.assigns.questions
-      |> Enum.map(& &1.id)
-      |> Enum.filter(&(&1 > question_id))
-
-    {disabled_questions, question_id}
-  end
-
-  defp get_disabled_questions_ids(
-         socket,
-         %{
-           is_terminal: false,
-           question_id: question_id
-         }
-       ) do
-    %{disabled_questions_ids: disabled_questions_ids, disabled_question_id: disabled_question_id} =
-      socket.assigns
-
-    if disabled_question_id == question_id do
-      {[], nil}
-    else
-      {disabled_questions_ids, disabled_question_id}
-    end
+  defp get_disabled_questions_ids(socket, params) do
+    params
+    |> Map.merge(%{
+      questions: socket.assigns.questions,
+      disabled_questions_ids: socket.assigns.disabled_questions_ids,
+      disabled_question_id: socket.assigns.disabled_question_id
+    })
+    |> RequestForChange.get_disabled_questions_ids()
   end
 end

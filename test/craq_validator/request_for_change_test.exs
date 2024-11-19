@@ -149,6 +149,83 @@ defmodule CraqValidator.RequestForChangeTest do
     end
   end
 
+  describe "get_disabled_questions_ids/1" do
+    setup do
+      question_one = question_factory()
+      question_two = question_factory()
+      question_three = question_factory()
+
+      %{
+        questions: [question_one, question_two, question_three],
+        question_one: question_one,
+        question_two: question_two,
+        question_three: question_three
+      }
+    end
+
+    test "must return a {list_of_question_ids_to_disable, terminal_question_id} for a terminal option",
+         %{
+           questions: questions,
+           question_one: question_one,
+           question_two: question_two,
+           question_three: question_three
+         } do
+      params = %{
+        questions: questions,
+        is_terminal: true,
+        question_id: question_one.id
+      }
+
+      {disabled_question_ids, terminal_question_id} =
+        RequestForChange.get_disabled_questions_ids(params)
+
+      assert disabled_question_ids == [question_two.id, question_three.id]
+      assert terminal_question_id == question_one.id
+    end
+
+    test "returns {[], nil} when a non-terminal option matches the disabled_question_id", %{
+      questions: questions,
+      question_two: question_two,
+      question_three: question_three
+    } do
+      params = %{
+        questions: questions,
+        is_terminal: false,
+        question_id: question_two.id,
+        disabled_questions_ids: [question_three.id],
+        disabled_question_id: question_two.id
+      }
+
+      {disabled_question_ids, terminal_question_id} =
+        RequestForChange.get_disabled_questions_ids(params)
+
+      assert disabled_question_ids == []
+      assert is_nil(terminal_question_id)
+    end
+
+    test "returns {disabled_questions_ids, disabled_question_id} when a non-terminal option does not match",
+         %{
+           questions: questions,
+           question_one: question_one,
+           question_two: question_two,
+           question_three: question_three
+         } do
+      params = %{
+        questions: questions,
+        is_terminal: false,
+        question_id: question_one.id,
+        disabled_questions_ids: [question_three.id],
+        disabled_question_id: question_two.id
+      }
+
+      {disabled_question_ids, terminal_question_id} =
+        RequestForChange.get_disabled_questions_ids(params)
+
+      assert disabled_question_ids == [question_three.id]
+      assert terminal_question_id == question_two.id
+    end
+  end
+
   defp question_factory(attrs \\ %{}), do: Factory.insert!(:question, attrs)
   defp option_factory(attrs \\ %{}), do: Factory.insert!(:option, attrs)
 end
