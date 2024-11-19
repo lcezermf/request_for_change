@@ -13,6 +13,16 @@ defmodule CraqValidator.RequestForChange do
 
   import Ecto.Query
 
+  @doc "Returns a question extracting from a given list of questions"
+  @spec get_question_from_list(list(), integer()) :: Question.t() | nil
+  def get_question_from_list(questions, question_id) when is_binary(question_id) do
+    get_question_from_list(questions, String.to_integer(question_id))
+  end
+
+  def get_question_from_list(questions, question_id) when is_integer(question_id) do
+    Enum.find(questions, &(&1.id == question_id))
+  end
+
   @doc "List all questions"
   @spec list_questions() :: [Question.t()] | []
   def list_questions do

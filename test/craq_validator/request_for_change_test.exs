@@ -7,6 +7,28 @@ defmodule CraqValidator.RequestForChangeTest do
   alias CraqValidator.RequestForChange
   alias CraqValidator.RequestForChange.Response
 
+  describe "get_question_from_list/2" do
+    test "must return nil when not found" do
+      question_one = question_factory()
+      question_two = question_factory()
+
+      questions = [question_one, question_two]
+
+      assert is_nil(RequestForChange.get_question_from_list(questions, 999))
+    end
+
+    test "must return question" do
+      question_one = question_factory()
+      question_two = question_factory()
+
+      questions = [question_one, question_two]
+
+      %{id: result_id} = RequestForChange.get_question_from_list(questions, question_one.id)
+
+      assert result_id == question_one.id
+    end
+  end
+
   describe "get_question_by_id/1" do
     test "must return nil when nil is given" do
       assert is_nil(RequestForChange.get_question_by_id(nil))
