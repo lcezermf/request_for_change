@@ -21,7 +21,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     socket =
       socket
       |> assign(:questions, questions)
-      |> assign(:responses, build_responses(questions))
+      |> assign(:responses, RequestForChange.build_responses(questions))
       |> assign(:has_submitted, false)
       |> assign(:disabled_questions_ids, [])
       |> assign(:disabled_question_id, nil)
@@ -111,7 +111,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
         socket
         |> assign(:questions, questions)
-        |> assign(:responses, build_responses(questions))
+        |> assign(:responses, RequestForChange.build_responses(questions))
         |> assign(:has_submitted, false)
         |> put_flash(:info, "CRAQ submitted successfully!")
         |> push_navigate(to: ~p"/request_for_change")
@@ -121,21 +121,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       end
 
     {:noreply, socket}
-  end
-
-  defp build_responses([]), do: %{}
-
-  defp build_responses(questions) do
-    Enum.reduce(questions, %{}, fn question, acc ->
-      Map.put(
-        acc,
-        question.id,
-        Response.changeset(%Response{}, %{
-          question_kind: question.kind,
-          question_require_comment: question.require_comment
-        })
-      )
-    end)
   end
 
   defp get_disabled_questions_ids(socket, %{

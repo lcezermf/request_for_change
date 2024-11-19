@@ -13,8 +13,25 @@ defmodule CraqValidator.RequestForChange do
 
   import Ecto.Query
 
+  @doc "Build the initial responses based on a list of loaded questions"
+  @spec build_responses([Question.t()]) :: map()
+  def build_responses([]), do: %{}
+
+  def build_responses(questions) do
+    Enum.reduce(questions, %{}, fn question, acc ->
+      Map.put(
+        acc,
+        question.id,
+        Response.changeset(%Response{}, %{
+          question_kind: question.kind,
+          question_require_comment: question.require_comment
+        })
+      )
+    end)
+  end
+
   @doc "Returns a question extracting from a given list of questions"
-  @spec get_question_from_list(list(), integer()) :: Question.t() | nil
+  @spec get_question_from_list([Question.t()], integer()) :: Question.t() | nil
   def get_question_from_list(questions, question_id) when is_binary(question_id) do
     get_question_from_list(questions, String.to_integer(question_id))
   end

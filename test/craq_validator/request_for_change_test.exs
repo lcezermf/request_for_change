@@ -7,6 +7,24 @@ defmodule CraqValidator.RequestForChangeTest do
   alias CraqValidator.RequestForChange
   alias CraqValidator.RequestForChange.Response
 
+  describe "build_responses/1" do
+    test "must return empty map when given empty list data" do
+      assert RequestForChange.build_responses([]) == %{}
+    end
+
+    test "must build changesets with given data" do
+      question_one = question_factory()
+      question_two = question_factory()
+
+      questions = [question_one, question_two]
+
+      responses = RequestForChange.build_responses(questions)
+
+      assert Map.has_key?(responses, question_one.id)
+      assert Map.has_key?(responses, question_two.id)
+    end
+  end
+
   describe "get_question_from_list/2" do
     test "must return nil when not found" do
       question_one = question_factory()
