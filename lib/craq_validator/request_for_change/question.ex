@@ -1,6 +1,6 @@
 defmodule CraqValidator.RequestForChange.Question do
   @moduledoc """
-  TBD
+  Question schema to store information about a question
   """
 
   use Ecto.Schema

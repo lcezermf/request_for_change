@@ -1,6 +1,6 @@
 defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   @moduledoc """
-  TBD
+  LiveView module that handles the form
   """
 
   use CraqValidatorWeb, :live_view

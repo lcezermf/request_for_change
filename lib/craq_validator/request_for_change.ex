@@ -1,6 +1,9 @@
 defmodule CraqValidator.RequestForChange do
   @moduledoc """
-  Context to handle business logic when complete CRAQ form
+  Context to handle business logic
+
+  This context must run the core operations such as filtering data, mounting the data to be used on the LV module
+  and store data.
   """
 
   alias CraqValidator.RequestForChange.Question

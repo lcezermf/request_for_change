@@ -1,6 +1,8 @@
 defmodule CraqValidator.RequestForChange.Response do
   @moduledoc """
-  TBD
+  Response schema to store information about a response
+
+  The schema is responsible for coordinating the validations based on the inputs (questions and options).
   """
 
   use Ecto.Schema

@@ -1,7 +1,8 @@
 defmodule CraqValidator.RequestForChange.Option do
   @moduledoc """
-  TBD
+  Option schema to store information about an option
   """
+
   use Ecto.Schema
 
   import Ecto.Changeset
