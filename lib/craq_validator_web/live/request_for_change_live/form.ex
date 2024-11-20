@@ -45,15 +45,15 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           "option_id" => option_id,
           "option_require_confirmation" => "false"
         },
-        socket
+        %{
+          assigns: %{
+            responses: responses,
+            all_disabled_confirmations: all_disabled_confirmations,
+            questions_with_confirmations: questions_with_confirmations,
+            disabled_confirmations: disabled_confirmations
+          }
+        } = socket
       ) do
-    %{
-      responses: responses,
-      all_disabled_confirmations: all_disabled_confirmations,
-      questions_with_confirmations: questions_with_confirmations,
-      disabled_confirmations: disabled_confirmations
-    } = socket.assigns
-
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
     option = RequestForChange.get_option_by_id(option_id)
 
@@ -94,14 +94,14 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           "option_id" => option_id,
           "option_require_confirmation" => "true"
         },
-        socket
+        %{
+          assigns: %{
+            responses: responses,
+            disabled_confirmations: disabled_confirmations,
+            questions_with_confirmations: questions_with_confirmations
+          }
+        } = socket
       ) do
-    %{
-      responses: responses,
-      disabled_confirmations: disabled_confirmations,
-      questions_with_confirmations: questions_with_confirmations
-    } = socket.assigns
-
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
     option = RequestForChange.get_option_by_id(option_id)
 
@@ -143,11 +143,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           "option_id" => option_id,
           "confirmation_id" => confirmation_id
         },
-        socket
+        %{assigns: %{selected_confirmations: selected_confirmations, questions: questions}} =
+          socket
       ) do
     confirmation_id = String.to_integer(confirmation_id)
-
-    selected_confirmations = socket.assigns.selected_confirmations
 
     updated_selected_confirmations =
       if confirmation_id in selected_confirmations do
@@ -156,7 +155,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         [confirmation_id | selected_confirmations]
       end
 
-    question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
+    question = RequestForChange.get_question_from_list(questions, question_id)
     responses = socket.assigns.responses
     option = RequestForChange.get_option_by_id(option_id)
 
@@ -183,10 +182,9 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   def handle_event(
         "reply_question",
         %{"question_id" => question_id, "value" => comment},
-        socket
+        %{assigns: %{responses: responses}} = socket
       ) do
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
-    responses = socket.assigns.responses
 
     base_struct = Map.get(responses, question.id, %Response{})
 
