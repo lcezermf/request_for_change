@@ -151,6 +151,11 @@ defmodule CraqValidator.RequestForChangeTest do
       question_three = question_factory(%{kind: "free_text"})
       question_four = question_factory(%{kind: "free_text"})
 
+      question_five = question_factory()
+      option_three = option_factory(%{question: question_five, require_confirmation: true})
+      confirmation_one = confirmation_factory(%{option: option_three})
+      confirmation_factory(%{option: option_three})
+
       responses = %{
         question_one.id =>
           Response.changeset(%Response{}, %{
@@ -170,12 +175,34 @@ defmodule CraqValidator.RequestForChangeTest do
           Response.changeset(%Response{}, %{
             "question_id" => question_four.id,
             "comment" => "My comment"
+          }),
+        question_five =>
+          Response.changeset(%Response{}, %{
+            "question_id" => question_five.id,
+            "option_id" => option_three.id,
+            "confirmations" => [confirmation_one.id]
           })
       }
 
-      responses = RequestForChange.save_responses(responses)
+      [response_one, response_two, response_three, response_four, response_five] =
+        responses = RequestForChange.save_responses(responses)
 
-      assert length(responses) == 4
+      assert length(responses) == 5
+
+      assert response_one.question_id == question_one.id
+      assert response_one.option_id == option_one.id
+
+      assert response_two.question_id == question_two.id
+      assert response_two.option_id == option_two.id
+
+      assert response_three.question_id == question_three.id
+
+      assert response_four.question_id == question_four.id
+      assert response_four.comment == "My comment"
+
+      assert response_five.question_id == question_five.id
+      assert response_five.option_id == option_three.id
+      assert response_five.confirmations == [confirmation_one.id]
     end
   end
 

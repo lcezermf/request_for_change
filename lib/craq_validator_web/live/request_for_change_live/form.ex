@@ -98,8 +98,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         option_id: option_id
       })
 
-    changeset |> IO.inspect()
-
     updated_disabled_confirmations =
       if Map.has_key?(disabled_confirmations, option.id) do
         Map.put(disabled_confirmations, option.id, [])
@@ -111,9 +109,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
       |> assign(:disabled_confirmations, updated_disabled_confirmations)
-
-    changeset |> IO.inspect()
-    socket.assigns.responses |> IO.inspect()
 
     {:noreply, socket}
   end
@@ -211,8 +206,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         question_id not in disabled_questions_ids
       end)
       |> Enum.into(%{})
-
-    responses_not_disabled |> IO.inspect()
 
     # maybe extract to the context
     all_valid? =

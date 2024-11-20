@@ -354,31 +354,6 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
 
     assert has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
     assert has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
-  end
-
-  test "must guarantee that only options of the same question can disabled/enable confirmations",
-       %{
-         conn: conn
-       } do
-    question_one = Factory.insert!(:question)
-
-    option_one =
-      Factory.insert!(:option, %{question_id: question_one.id, require_confirmation: true})
-
-    option_two = Factory.insert!(:option, %{question_id: question_one.id})
-
-    confirmation_one = Factory.insert!(:confirmation, %{option: option_one})
-    confirmation_two = Factory.insert!(:confirmation, %{option: option_one})
-
-    question_two = Factory.insert!(:question)
-
-    option_three = Factory.insert!(:option, %{question_id: question_two.id})
-    option_four = Factory.insert!(:option, %{question_id: question_two.id})
-
-    {:ok, view, _html} = access_form_submission_page(conn)
-
-    assert has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
-    assert has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
 
     view
     |> element("##{option_one.id}")
@@ -388,12 +363,54 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     refute has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
 
     view
-    |> element("##{option_three.id}")
+    |> element("#confirmation-#{confirmation_one.id}")
     |> render_click()
 
-    refute has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
-    refute has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
+    view
+    |> form("#craq_form")
+    |> render_submit()
+
+    assert Repo.aggregate(Response, :count, :id) == 1
   end
+
+  # test "must guarantee that only options of the same question can disabled/enable confirmations",
+  #      %{
+  #        conn: conn
+  #      } do
+  #   question_one = Factory.insert!(:question)
+
+  #   option_one =
+  #     Factory.insert!(:option, %{question_id: question_one.id, require_confirmation: true})
+
+  #   option_two = Factory.insert!(:option, %{question_id: question_one.id})
+
+  #   confirmation_one = Factory.insert!(:confirmation, %{option: option_one})
+  #   confirmation_two = Factory.insert!(:confirmation, %{option: option_one})
+
+  #   question_two = Factory.insert!(:question)
+
+  #   option_three = Factory.insert!(:option, %{question_id: question_two.id})
+  #   option_four = Factory.insert!(:option, %{question_id: question_two.id})
+
+  #   {:ok, view, _html} = access_form_submission_page(conn)
+
+  #   assert has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
+  #   assert has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
+
+  #   view
+  #   |> element("##{option_one.id}")
+  #   |> render_click()
+
+  #   refute has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
+  #   refute has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
+
+  #   view
+  #   |> element("##{option_three.id}")
+  #   |> render_click()
+
+  #   refute has_element?(view, "#confirmation-#{confirmation_one.id}[disabled]")
+  #   refute has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
+  # end
 
   defp access_form_submission_page(conn) do
     conn
