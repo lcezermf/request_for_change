@@ -79,7 +79,8 @@ Repo.insert(%Option{
 
 {:ok, question_five} =
   Repo.insert(%Question{
-    description: "This is an example of multiple choice question without comment required",
+    description:
+      "This is an example of multiple choice question without comment required and with confirmations",
     kind: "multiple_choice"
   })
 

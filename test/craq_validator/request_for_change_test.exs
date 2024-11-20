@@ -123,25 +123,23 @@ defmodule CraqValidator.RequestForChangeTest do
   end
 
   describe "save_responses/1" do
-    test "must save a single valid response" do
+    test "must save a single response" do
       question_one = question_factory()
       option_one = option_factory(%{question: question_one})
 
-      responses = %{
-        question_one.id =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_one.id,
-            "option_id" => option_one.id
-          })
-      }
+      responses = [
+        Response.changeset(%Response{}, %{
+          question_id: question_one.id,
+          option_id: option_one.id
+        })
+      ]
 
-      [result] = RequestForChange.save_responses(responses)
+      {:ok, [response_one]} = RequestForChange.save_responses(responses)
 
-      assert result.question_id == question_one.id
-      assert result.option_id == option_one.id
+      assert response_one.question_id == question_one.id
     end
 
-    test "must save a multiple valid response" do
+    test "must save a multiple responses" do
       question_one = question_factory()
       option_one = option_factory(%{question: question_one})
 
@@ -156,53 +154,53 @@ defmodule CraqValidator.RequestForChangeTest do
       confirmation_one = confirmation_factory(%{option: option_three})
       confirmation_factory(%{option: option_three})
 
-      responses = %{
-        question_one.id =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_one.id,
-            "option_id" => option_one.id
-          }),
-        question_two.id =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_two.id,
-            "option_id" => option_two.id
-          }),
-        question_three =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_three.id
-          }),
-        question_four =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_four.id,
-            "comment" => "My comment"
-          }),
-        question_five =>
-          Response.changeset(%Response{}, %{
-            "question_id" => question_five.id,
-            "option_id" => option_three.id,
-            "confirmations" => [confirmation_one.id]
-          })
-      }
+      responses = [
+        Response.changeset(%Response{}, %{
+          question_id: question_one.id,
+          option_id: option_one.id
+        }),
+        Response.changeset(%Response{}, %{
+          question_id: question_two.id,
+          option_id: option_two.id
+        }),
+        Response.changeset(%Response{}, %{
+          question_id: question_three.id
+        }),
+        Response.changeset(%Response{}, %{
+          question_id: question_four.id,
+          comment: "My comment"
+        }),
+        Response.changeset(%Response{}, %{
+          question_id: question_five.id,
+          option_id: option_three.id,
+          confirmations: [confirmation_one.id]
+        })
+      ]
 
-      [response_one, response_two, response_three, response_four, response_five] =
-        responses = RequestForChange.save_responses(responses)
+      {:ok, results} = RequestForChange.save_responses(responses)
 
-      assert length(responses) == 5
+      assert length(results) == 5
+    end
 
-      assert response_one.question_id == question_one.id
-      assert response_one.option_id == option_one.id
+    test "must not save where there is one invalid" do
+      question_one = question_factory()
+      option_one = option_factory(%{question: question_one})
 
-      assert response_two.question_id == question_two.id
-      assert response_two.option_id == option_two.id
+      question_two = question_factory(%{require_comment: true})
+      option_factory(%{question: question_two})
 
-      assert response_three.question_id == question_three.id
+      responses = [
+        Response.changeset(%Response{}, %{
+          question_id: question_one.id,
+          option_id: option_one.id
+        }),
+        Response.changeset(%Response{}, %{
+          question_id: question_two.id,
+          question_require_comment: question_two.require_comment
+        })
+      ]
 
-      assert response_four.question_id == question_four.id
-      assert response_four.comment == "My comment"
-
-      assert response_five.question_id == question_five.id
-      assert response_five.option_id == option_three.id
-      assert response_five.confirmations == [confirmation_one.id]
+      {:error, _error_message} = RequestForChange.save_responses(responses)
     end
   end
 
@@ -280,6 +278,30 @@ defmodule CraqValidator.RequestForChangeTest do
 
       assert disabled_question_ids == [question_three.id]
       assert terminal_question_id == question_two.id
+    end
+  end
+
+  describe "filter_enabled_responses/2" do
+    test "must return only the enabled" do
+      responses = %{1 => %{id: 1}, 2 => %{id: 2}, 3 => %{id: 3}}
+      disabled_questions_ids = [3]
+
+      assert [%{id: 1}, %{id: 2}] ==
+               RequestForChange.filter_enabled_responses(
+                 responses,
+                 disabled_questions_ids
+               )
+    end
+
+    test "must return all when there are no disabled" do
+      responses = %{1 => %{id: 1}, 2 => %{id: 2}, 3 => %{id: 3}}
+      disabled_questions_ids = []
+
+      assert [%{id: 1}, %{id: 2}, %{id: 3}] ==
+               RequestForChange.filter_enabled_responses(
+                 responses,
+                 disabled_questions_ids
+               )
     end
   end
 

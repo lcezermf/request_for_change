@@ -6,7 +6,6 @@ defmodule CraqValidator.RequestForChange do
   and storing data.
   """
 
-  alias CraqValidator.RequestForChange.Confirmation
   alias CraqValidator.RequestForChange.Question
   alias CraqValidator.RequestForChange.Response
   alias CraqValidator.RequestForChange.Option
@@ -105,12 +104,28 @@ defmodule CraqValidator.RequestForChange do
 
   Returns a list of the inserted responses.
   """
-  @spec save_responses(map) :: [Response.t()] | []
+  @spec save_responses(map) :: {:ok, any()} | {:error, any()}
   def save_responses(responses) do
-    Enum.map(responses, fn {_, response} ->
-      {:ok, response} = Repo.insert(response)
-      response
+    Repo.transaction(fn ->
+      Enum.reduce(responses, [], fn response, acc ->
+        case Repo.insert(response) do
+          {:ok, record} -> [record | acc]
+          {:error, response} -> Repo.rollback(response.errors)
+        end
+      end)
     end)
+  end
+
+  @doc """
+  Filters a map of responses to exclude any responses associated with disabled question IDs.
+  """
+  @spec filter_enabled_responses(map(), [integer()]) :: list()
+  def filter_enabled_responses(responses, disabled_questions_ids) do
+    responses
+    |> Enum.filter(fn {question_id, _response} ->
+      question_id not in disabled_questions_ids
+    end)
+    |> Enum.map(fn {_question_id, response} -> response end)
   end
 
   @doc """

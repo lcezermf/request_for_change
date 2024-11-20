@@ -17,9 +17,9 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
 
     {:ok, view, html} = access_form_submission_page(conn)
 
-    assert html =~ "Answer Questions"
+    assert html =~ "CRAQ Form"
 
-    assert has_element?(view, "p.text-lg.font-semibold", question_one.description)
+    assert has_element?(view, "h3.text-lg", question_one.description)
     assert has_element?(view, "input[id=#{option_one.id}]")
     assert has_element?(view, "input[id=#{option_two.id}]")
   end

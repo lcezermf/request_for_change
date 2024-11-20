@@ -1,6 +1,6 @@
 defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   @moduledoc """
-  LiveView module that handles the form
+  LiveView module that handles form
   """
 
   use CraqValidatorWeb, :live_view
@@ -217,33 +217,25 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           }
         } = socket
       ) do
-    # refactor to return a list
-    responses_not_disabled =
-      Enum.filter(responses, fn {question_id, _response} ->
-        question_id not in disabled_questions_ids
-      end)
-      |> Enum.into(%{})
-
-    # maybe extract to the context
-    all_valid? =
-      Enum.all?(responses_not_disabled, fn {_question_id, response} -> response.valid? end)
+    enabled_responses =
+      RequestForChange.filter_enabled_responses(responses, disabled_questions_ids)
 
     socket =
-      if all_valid? do
-        RequestForChange.save_responses(responses_not_disabled)
+      case RequestForChange.save_responses(enabled_responses) do
+        {:ok, _} ->
+          socket
+          |> assign(:questions, questions)
+          |> assign(
+            :responses,
+            RequestForChange.build_responses(questions, form_public_id)
+          )
+          |> assign(:has_submitted, false)
+          |> put_flash(:info, "CRAQ submitted successfully!")
+          |> push_navigate(to: ~p"/request_for_change")
 
-        socket
-        |> assign(:questions, questions)
-        |> assign(
-          :responses,
-          RequestForChange.build_responses(questions, form_public_id)
-        )
-        |> assign(:has_submitted, false)
-        |> put_flash(:info, "CRAQ submitted successfully!")
-        |> push_navigate(to: ~p"/request_for_change")
-      else
-        socket
-        |> assign(:has_submitted, true)
+        {:error, _} ->
+          socket
+          |> assign(:has_submitted, true)
       end
 
     {:noreply, socket}
