@@ -32,6 +32,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:all_disabled_confirmations, disabled_confirmations)
       |> assign(:form_public_id, form_public_id)
       |> assign(:selected_confirmations, [])
+      |> assign(:questions_with_confirmations, [])
 
     {:ok, socket}
   end
@@ -46,7 +47,13 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         },
         socket
       ) do
-    responses = socket.assigns.responses
+    %{
+      responses: responses,
+      all_disabled_confirmations: all_disabled_confirmations,
+      questions_with_confirmations: questions_with_confirmations,
+      disabled_confirmations: disabled_confirmations
+    } = socket.assigns
+
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
     option = RequestForChange.get_option_by_id(option_id)
 
@@ -62,12 +69,19 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         option_id: option_id
       })
 
+    updated_disabled_confirmations =
+      if question.id in questions_with_confirmations do
+        all_disabled_confirmations
+      else
+        disabled_confirmations
+      end
+
     socket =
       socket
       |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
-      |> assign(:disabled_confirmations, socket.assigns.all_disabled_confirmations)
+      |> assign(:disabled_confirmations, updated_disabled_confirmations)
 
     {:noreply, socket}
   end
@@ -82,7 +96,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         },
         socket
       ) do
-    %{responses: responses, disabled_confirmations: disabled_confirmations} = socket.assigns
+    %{
+      responses: responses,
+      disabled_confirmations: disabled_confirmations,
+      questions_with_confirmations: questions_with_confirmations
+    } = socket.assigns
+
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
     option = RequestForChange.get_option_by_id(option_id)
 
@@ -103,12 +122,15 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         Map.put(disabled_confirmations, option.id, [])
       end
 
+    updated_questions_with_confirmations = questions_with_confirmations ++ [question.id]
+
     socket =
       socket
       |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
       |> assign(:disabled_confirmations, updated_disabled_confirmations)
+      |> assign(:questions_with_confirmations, updated_questions_with_confirmations)
 
     {:noreply, socket}
   end
@@ -152,11 +174,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
     socket =
       socket
-      |> assign(:responses, Map.put(responses, question.id, changeset))
-
-    socket =
-      socket
       |> assign(:selected_confirmations, updated_selected_confirmations)
+      |> assign(:responses, Map.put(responses, question.id, changeset))
 
     {:noreply, socket}
   end
