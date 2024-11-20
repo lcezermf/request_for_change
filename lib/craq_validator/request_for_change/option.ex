@@ -7,13 +7,19 @@ defmodule CraqValidator.RequestForChange.Option do
 
   import Ecto.Changeset
 
+  alias CraqValidator.RequestForChange.Question
+  alias CraqValidator.RequestForChange.Confirmation
+
   @type t :: %__MODULE__{}
 
   schema "options" do
     field :description, :string
     field :is_terminal, :boolean, default: false
+    field :require_confirmation, :boolean, default: false
 
-    belongs_to :question, CraqValidator.RequestForChange.Question
+    belongs_to :question, Question
+
+    has_many :confirmations, Confirmation
 
     timestamps(type: :utc_datetime)
   end

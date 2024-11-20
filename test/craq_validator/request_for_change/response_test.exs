@@ -93,4 +93,31 @@ defmodule CraqValidator.RequestForChange.ResponseTest do
       assert changeset.valid?
     end
   end
+
+  test "must validate when a option require confirmation" do
+    question = Factory.insert!(:question, %{kind: "multiple_choice"})
+    Factory.insert!(:option, %{question: question})
+    option_two = Factory.insert!(:option, %{question: question})
+    Factory.insert!(:confirmation, %{option: option_two})
+    Factory.insert!(:confirmation, %{option: option_two})
+
+    changeset =
+      Response.changeset(%Response{}, %{
+        option_id: option_two.id,
+        question_id: question.id,
+        question_kind: question.kind,
+        option_require_confirmation: true,
+        confirmations: []
+      })
+
+    refute changeset.valid?
+    assert %{confirmations: ["should have at least 1 item(s)"]} == errors_on(changeset)
+
+    changeset =
+      Response.changeset(changeset, %{
+        confirmations: [1]
+      })
+
+    assert changeset.valid?
+  end
 end

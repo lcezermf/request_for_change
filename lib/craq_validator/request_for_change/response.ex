@@ -14,11 +14,13 @@ defmodule CraqValidator.RequestForChange.Response do
   schema "responses" do
     field :option_id, :integer
     field :comment, :string
+    field :form_public_id, :binary_id
+    field :confirmations, {:array, :integer}
 
     field :question_kind, :string, virtual: true
     field :question_require_comment, :boolean, virtual: true
     field :option_is_terminal, :boolean, virtual: true
-    field :form_public_id, :binary_id
+    field :option_require_confirmation, :boolean, virtual: true
 
     belongs_to :question, CraqValidator.RequestForChange.Question
 
@@ -35,11 +37,14 @@ defmodule CraqValidator.RequestForChange.Response do
       :question_require_comment,
       :question_id,
       :option_is_terminal,
-      :form_public_id
+      :form_public_id,
+      :option_require_confirmation,
+      :confirmations
     ])
     |> maybe_delete_previous_errors()
     |> maybe_validate_selected_option()
     |> maybe_validate_comment()
+    |> maybe_validate_confirmation()
     |> maybe_remove_validations()
   end
 
@@ -71,4 +76,12 @@ defmodule CraqValidator.RequestForChange.Response do
   end
 
   defp maybe_remove_validations(changeset), do: changeset
+
+  defp maybe_validate_confirmation(%{changes: %{option_require_confirmation: true}} = changeset) do
+    changeset
+    |> validate_required(:confirmations)
+    |> validate_length(:confirmations, min: 1)
+  end
+
+  defp maybe_validate_confirmation(changeset), do: changeset
 end

@@ -11,11 +11,14 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
 
   @impl true
   def mount(_params, _session, socket) do
-    {questions, form_public_id} =
+    {questions, form_public_id, disabled_confirmations} =
       if connected?(socket) do
-        {RequestForChange.list_questions(), RequestForChange.generate_form_public_id()}
+        questions = RequestForChange.list_questions()
+
+        {questions, RequestForChange.generate_form_public_id(),
+         RequestForChange.list_confirmations(questions)}
       else
-        {[], nil}
+        {[], nil, %{}}
       end
 
     socket =
@@ -25,7 +28,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:has_submitted, false)
       |> assign(:disabled_questions_ids, [])
       |> assign(:disabled_question_id, nil)
+      |> assign(:disabled_confirmations, disabled_confirmations)
+      |> assign(:all_disabled_confirmations, disabled_confirmations)
       |> assign(:form_public_id, form_public_id)
+      |> assign(:selected_confirmations, [])
 
     {:ok, socket}
   end
@@ -33,7 +39,11 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   @impl true
   def handle_event(
         "reply_question",
-        %{"question_id" => question_id, "option_id" => option_id},
+        %{
+          "question_id" => question_id,
+          "option_id" => option_id,
+          "option_require_confirmation" => "false"
+        },
         socket
       ) do
     responses = socket.assigns.responses
@@ -48,6 +58,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         question_id: question.id,
         question_kind: question.kind,
         question_require_comment: question.require_comment,
+        option_require_confirmation: option.require_confirmation,
         option_id: option_id
       })
 
@@ -56,6 +67,101 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
+      |> assign(:disabled_confirmations, socket.assigns.all_disabled_confirmations)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "reply_question",
+        %{
+          "question_id" => question_id,
+          "option_id" => option_id,
+          "option_require_confirmation" => "true"
+        },
+        socket
+      ) do
+    %{responses: responses, disabled_confirmations: disabled_confirmations} = socket.assigns
+    question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
+    option = RequestForChange.get_option_by_id(option_id)
+
+    {disabled_questions_ids, disabled_question_id} = get_disabled_questions_ids(socket, option)
+
+    changeset =
+      Response.changeset(%Response{}, %{
+        form_public_id: socket.assigns.form_public_id,
+        question_id: question.id,
+        question_kind: question.kind,
+        question_require_comment: question.require_comment,
+        option_require_confirmation: option.require_confirmation,
+        option_id: option_id
+      })
+
+    changeset |> IO.inspect()
+
+    updated_disabled_confirmations =
+      if Map.has_key?(disabled_confirmations, option.id) do
+        Map.put(disabled_confirmations, option.id, [])
+      end
+
+    socket =
+      socket
+      |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
+      |> assign(:disabled_questions_ids, disabled_questions_ids)
+      |> assign(:disabled_question_id, disabled_question_id)
+      |> assign(:disabled_confirmations, updated_disabled_confirmations)
+
+    changeset |> IO.inspect()
+    socket.assigns.responses |> IO.inspect()
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "reply_question",
+        %{
+          "question_id" => question_id,
+          "option_id" => option_id,
+          "confirmation_id" => confirmation_id
+        },
+        socket
+      ) do
+    confirmation_id = String.to_integer(confirmation_id)
+
+    selected_confirmations = socket.assigns.selected_confirmations
+
+    updated_selected_confirmations =
+      if confirmation_id in selected_confirmations do
+        List.delete(selected_confirmations, confirmation_id)
+      else
+        [confirmation_id | selected_confirmations]
+      end
+
+    question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
+    responses = socket.assigns.responses
+    option = RequestForChange.get_option_by_id(option_id)
+
+    base_struct = Map.get(responses, question.id, %Response{})
+
+    changeset =
+      Response.changeset(base_struct, %{
+        form_public_id: socket.assigns.form_public_id,
+        question_id: question.id,
+        question_kind: question.kind,
+        question_require_comment: question.require_comment,
+        option_require_confirmation: option.require_confirmation,
+        confirmations: updated_selected_confirmations
+      })
+
+    socket =
+      socket
+      |> assign(:responses, Map.put(responses, question.id, changeset))
+
+    socket =
+      socket
+      |> assign(:selected_confirmations, updated_selected_confirmations)
 
     {:noreply, socket}
   end
@@ -106,6 +212,9 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       end)
       |> Enum.into(%{})
 
+    responses_not_disabled |> IO.inspect()
+
+    # maybe extract to the context
     all_valid? =
       Enum.all?(responses_not_disabled, fn {_question_id, response} -> response.valid? end)
 

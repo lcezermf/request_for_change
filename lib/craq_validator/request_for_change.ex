@@ -6,6 +6,7 @@ defmodule CraqValidator.RequestForChange do
   and storing data.
   """
 
+  alias CraqValidator.RequestForChange.Confirmation
   alias CraqValidator.RequestForChange.Question
   alias CraqValidator.RequestForChange.Response
   alias CraqValidator.RequestForChange.Option
@@ -51,11 +52,32 @@ defmodule CraqValidator.RequestForChange do
     Enum.find(questions, &(&1.id == question_id))
   end
 
+  @doc """
+  Returns a map of options and their associated confirmation IDs.
+
+  Each key in the returned map is the `id` of an option, and the value is a list of confirmation IDs associated with that option.
+
+  ## Parameters
+
+  - `questions` (list): A list of questions, where each question contains a list of options, and each option contains a list of confirmations.
+  """
+  @spec list_confirmations([Question.t()]) :: map()
+  def list_confirmations([]), do: %{}
+
+  def list_confirmations(questions) do
+    questions
+    |> Enum.flat_map(& &1.options)
+    |> Enum.map(fn option ->
+      {option.id, Enum.map(option.confirmations, fn confirmation -> confirmation.id end)}
+    end)
+    |> Map.new()
+  end
+
   @doc "List all questions"
   @spec list_questions() :: [Question.t()] | []
   def list_questions do
     Question
-    |> preload([:options])
+    |> preload(options: :confirmations)
     |> order_by([q], asc: q.id)
     |> Repo.all()
   end
@@ -78,7 +100,9 @@ defmodule CraqValidator.RequestForChange do
 
   @doc """
   Saves a group of responses.
+
   Accepts a map of responses where each value is a valid `Response` changeset.
+
   Returns a list of the inserted responses.
   """
   @spec save_responses(map) :: [Response.t()] | []
@@ -125,7 +149,6 @@ defmodule CraqValidator.RequestForChange do
 
   def get_disabled_questions_ids(%{
         is_terminal: false,
-        question_id: _question_id,
         disabled_questions_ids: disabled_questions_ids,
         disabled_question_id: disabled_question_id
       }) do

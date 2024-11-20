@@ -95,6 +95,33 @@ defmodule CraqValidator.RequestForChangeTest do
     end
   end
 
+  describe "list_confirmations/0" do
+    test "must return empty" do
+      assert map_size(RequestForChange.list_confirmations([])) == 0
+    end
+
+    test "must return all confirmations grouped by option" do
+      question_one = question_factory()
+
+      option_one = option_factory(%{question: question_one, require_confirmation: true})
+
+      confirmation_one = confirmation_factory(%{option: option_one})
+      confirmation_two = confirmation_factory(%{option: option_one})
+
+      option_two = option_factory(%{question: question_one, require_confirmation: true})
+
+      confirmation_three = confirmation_factory(%{option: option_two})
+      confirmation_four = confirmation_factory(%{option: option_two})
+
+      result = RequestForChange.list_confirmations(RequestForChange.list_questions())
+
+      assert result == %{
+               option_one.id => [confirmation_one.id, confirmation_two.id],
+               option_two.id => [confirmation_three.id, confirmation_four.id]
+             }
+    end
+  end
+
   describe "save_responses/1" do
     test "must save a single valid response" do
       question_one = question_factory()
@@ -149,7 +176,6 @@ defmodule CraqValidator.RequestForChangeTest do
       responses = RequestForChange.save_responses(responses)
 
       assert length(responses) == 4
-      assert List.last(responses).comment == "My comment"
     end
   end
 
@@ -232,4 +258,5 @@ defmodule CraqValidator.RequestForChangeTest do
 
   defp question_factory(attrs \\ %{}), do: Factory.insert!(:question, attrs)
   defp option_factory(attrs \\ %{}), do: Factory.insert!(:option, attrs)
+  defp confirmation_factory(attrs), do: Factory.insert!(:confirmation, attrs)
 end

@@ -3,6 +3,7 @@ defmodule CraqValidator.Factory do
   Enable to create factory on test files.
   """
 
+  alias CraqValidator.RequestForChange.Confirmation
   alias CraqValidator.RequestForChange.Option
   alias CraqValidator.RequestForChange.Question
   alias CraqValidator.Repo
@@ -18,6 +19,13 @@ defmodule CraqValidator.Factory do
     %Option{
       description: "My description for option #{System.unique_integer([:positive])}",
       question_id: build(:question).id
+    }
+  end
+
+  def build(:confirmation) do
+    %Confirmation{
+      description: "My confirmation for option #{System.unique_integer([:positive])}",
+      option_id: build(:option).id
     }
   end
 

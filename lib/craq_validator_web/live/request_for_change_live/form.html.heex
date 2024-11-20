@@ -21,10 +21,41 @@
                       id={"#{option.id}"}
                       phx-value-option_id={option.id}
                       phx-value-question_id={question.id}
+                      phx-value-option_require_confirmation={
+                        if option.require_confirmation, do: "true", else: "false"
+                      }
                       class="mr-2"
                       checked={@responses[question.id].changes[:option_id] == option.id}
                     /><%= option.description %>
                   </label>
+                  <%= if option.require_confirmation do %>
+                    <%= for confirmation <- option.confirmations do %>
+                      <label class={"block #{if Map.get(@disabled_confirmations, option.id) != [], do: "text-gray-300", else: ""}"}>
+                        <input
+                          type="checkbox"
+                          phx-click="reply_question"
+                          name={input_name(f, "#{confirmation.id}")}
+                          id={"confirmation-#{confirmation.id}"}
+                          phx-value-option_id={option.id}
+                          phx-value-question_id={question.id}
+                          phx-value-confirmation_id={confirmation.id}
+                          class="ml-5 mr-2 "
+                          disabled={Map.get(@disabled_confirmations, option.id) != []}
+                          checked={confirmation.id in @selected_confirmations}
+                        /><%= confirmation.description %>
+                      </label>
+                    <% end %>
+                    <%= if question.id not in @disabled_questions_ids and @has_submitted and @responses[question.id].errors[:confirmations] do %>
+                      <div
+                        class="mt-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                        role="alert"
+                      >
+                        <span data-question-id={question.id}>
+                          <%= translate_errors(@responses[question.id].errors, :confirmations) %>
+                        </span>
+                      </div>
+                    <% end %>
+                  <% end %>
                 <% end %>
                 <%= if question.id not in @disabled_questions_ids and @has_submitted and @responses[question.id].errors[:option_id] do %>
                   <div

@@ -11,6 +11,7 @@
 # and so on) as they will fail if something goes wrong.
 
 alias CraqValidator.Repo
+alias CraqValidator.RequestForChange.Confirmation
 alias CraqValidator.RequestForChange.Option
 alias CraqValidator.RequestForChange.Question
 alias CraqValidator.RequestForChange.Response
@@ -75,3 +76,31 @@ Repo.insert(%Option{
     description: "This is an example of free text question",
     kind: "free_text"
   })
+
+{:ok, question_five} =
+  Repo.insert(%Question{
+    description: "This is an example of multiple choice question without comment required",
+    kind: "multiple_choice"
+  })
+
+{:ok, option} =
+  Repo.insert(%Option{
+    description: "My option for question #{System.unique_integer([:positive])}",
+    question_id: question_five.id,
+    require_confirmation: true
+  })
+
+Repo.insert(%Confirmation{
+  description: "This is a confirmation",
+  option_id: option.id
+})
+
+Repo.insert(%Confirmation{
+  description: "This is a confirmation",
+  option_id: option.id
+})
+
+Repo.insert(%Option{
+  description: "My option for question #{System.unique_integer([:positive])}",
+  question_id: question_five.id
+})
