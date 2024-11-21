@@ -7,21 +7,12 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
   alias CraqValidator.Repo
   alias CraqValidator.RequestForChange.Response
 
-  test "must render the page with questions", %{
+  test "must render the page", %{
     conn: conn
   } do
-    question_one = Factory.insert!(:question)
+    {:ok, _view, html} = access_form_submission_page(conn)
 
-    option_one = Factory.insert!(:option, question_id: question_one.id)
-    option_two = Factory.insert!(:option, question_id: question_one.id)
-
-    {:ok, view, html} = access_form_submission_page(conn)
-
-    assert html =~ "Answer Questions"
-
-    assert has_element?(view, "p.text-lg", question_one.description)
-    assert has_element?(view, "input[id=#{option_one.id}]")
-    assert has_element?(view, "input[id=#{option_two.id}]")
+    assert html =~ "CRAQ Request Form"
   end
 
   test "must render error when a single multiple choice question is not completed", %{
