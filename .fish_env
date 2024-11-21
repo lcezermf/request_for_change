@@ -1,0 +1,3 @@
+set -x POSTGRES_USER postgres
+set -x POSTGRES_PASSWORD postgres
+set -x POSTGRES_HOST localhost
