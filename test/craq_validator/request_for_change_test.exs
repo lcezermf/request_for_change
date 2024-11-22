@@ -1,6 +1,4 @@
 defmodule CraqValidator.RequestForChangeTest do
-  alias Finch.Response
-  alias Finch.Response
   use CraqValidator.DataCase
 
   alias CraqValidator.Factory
@@ -302,6 +300,127 @@ defmodule CraqValidator.RequestForChangeTest do
                  responses,
                  disabled_questions_ids
                )
+    end
+  end
+
+  describe "calculate_total_pending_responses/2" do
+    test "must return the number of pending responses (checkbox, radio button and comments) that are required" do
+      question_one = question_factory(%{require_comment: true})
+      option_factory(%{question: question_one})
+
+      question_two = question_factory()
+      option_factory(%{question: question_two})
+
+      question_factory(%{kind: "free_text"})
+      question_factory(%{kind: "free_text"})
+
+      question_five = question_factory()
+      option_three = option_factory(%{question: question_five, require_confirmation: true})
+      confirmation_factory(%{option: option_three})
+      confirmation_factory(%{option: option_three})
+
+      questions = RequestForChange.list_questions()
+
+      responses =
+        RequestForChange.build_responses(questions, RequestForChange.generate_form_public_id())
+
+      assert RequestForChange.calculate_total_pending_responses(responses, []) == 4
+    end
+
+    test "must return the number of pending responses (checkbox, radio button and comments) that are required considering confirmations" do
+      question_one = question_factory(%{require_comment: true})
+      option_factory(%{question: question_one})
+
+      question_two = question_factory()
+      option_two = option_factory(%{question: question_two})
+
+      question_three = question_factory(%{kind: "free_text"})
+      question_four = question_factory(%{kind: "free_text"})
+
+      question_five = question_factory()
+      option_three = option_factory(%{question: question_five, require_confirmation: true})
+      confirmation_factory(%{option: option_three})
+      confirmation_factory(%{option: option_three})
+
+      responses = %{
+        question_one.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_one.id,
+            question_require_comment: question_one.require_comment
+          }),
+        question_two.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_two.id,
+            option_id: option_two.id
+          }),
+        question_three.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_three.id
+          }),
+        question_four.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_four.id,
+            comment: "My comment"
+          }),
+        question_five.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_five.id,
+            option_id: option_three.id,
+            option_require_confirmation: true
+          })
+      }
+
+      assert RequestForChange.calculate_total_pending_responses(responses, []) == 2
+    end
+
+    test "must return the number of pending responses (checkbox, radio button and comments) that are required considering some questions are disabled" do
+      question_one = question_factory(%{require_comment: true})
+      option_factory(%{question: question_one})
+
+      question_two = question_factory()
+      option_two = option_factory(%{question: question_two, is_terminal: true})
+
+      question_three = question_factory(%{kind: "free_text"})
+      question_four = question_factory(%{kind: "free_text"})
+
+      question_five = question_factory()
+      option_three = option_factory(%{question: question_five, require_confirmation: true})
+      confirmation_factory(%{option: option_three})
+      confirmation_factory(%{option: option_three})
+
+      responses = %{
+        question_one.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_one.id,
+            question_require_comment: true
+          }),
+        question_two.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_two.id,
+            option_id: option_two.id,
+            option_is_terminal: true
+          }),
+        question_three.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_three.id
+          }),
+        question_four.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_four.id,
+            comment: "My comment"
+          }),
+        question_five.id =>
+          Response.changeset(%Response{}, %{
+            question_id: question_five.id,
+            option_id: option_three.id,
+            option_require_confirmation: true
+          })
+      }
+
+      disabled_questions_ids = [question_three.id, question_four.id, question_five.id]
+
+      assert RequestForChange.calculate_total_pending_responses(responses, disabled_questions_ids) ==
+               1
     end
   end
 

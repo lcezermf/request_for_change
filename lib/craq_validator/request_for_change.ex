@@ -177,4 +177,21 @@ defmodule CraqValidator.RequestForChange do
   """
   @spec generate_form_public_id() :: binary()
   def generate_form_public_id, do: Ecto.UUID.generate()
+
+  @doc """
+  Calculates the total number of pending responses based on the validation errors present in the responses and the list of disabled questions.
+
+  The total count of validation errors across all responses.
+  """
+  @spec calculate_total_pending_responses([{integer() | binary(), Ecto.Changeset.t()}], [
+          integer()
+        ]) ::
+          non_neg_integer()
+  def calculate_total_pending_responses(responses, disabled_questions_ids) do
+    responses
+    |> Enum.reject(fn {question_id, _response} -> question_id in disabled_questions_ids end)
+    |> Enum.reduce(0, fn {_question_id, response}, acc ->
+      acc + length(response.errors)
+    end)
+  end
 end
