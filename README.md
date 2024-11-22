@@ -64,6 +64,8 @@ iex -S mix phx.server
 
 It will run the app and also open the iex console. If you do not wanna the iex console just run `mix phx.server`
 
+Server must be available on http://localhost:4000/request_for_change
+
 ### Running test
 
 Tests were developed using the default ExUnit framework and can be used by running:
