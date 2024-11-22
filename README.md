@@ -13,7 +13,7 @@ App is deployed and running on Gigalixir https://craqvalidator.gigalixirapp.com/
 The solution was built using:
 
 - Elixir 1.14
-- Erlang 24.0
+- Erlang 25.0
 - Phoenix 1.7.10
 - LiveView 0.20.1
 - PostgreSQL
