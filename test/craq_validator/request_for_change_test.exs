@@ -1,5 +1,5 @@
 defmodule CraqValidator.RequestForChangeTest do
-  use CraqValidator.DataCase
+  use CraqValidator.DataCase, async: true
 
   alias CraqValidator.Factory
   alias CraqValidator.RequestForChange

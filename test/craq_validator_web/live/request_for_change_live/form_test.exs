@@ -1,5 +1,5 @@
 defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
-  use CraqValidatorWeb.ConnCase
+  use CraqValidatorWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
 

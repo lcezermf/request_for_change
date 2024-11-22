@@ -55,10 +55,6 @@ defmodule CraqValidator.RequestForChange do
   Returns a map of options and their associated confirmation IDs.
 
   Each key in the returned map is the `id` of an option, and the value is a list of confirmation IDs associated with that option.
-
-  ## Parameters
-
-  - `questions` (list): A list of questions, where each question contains a list of options, and each option contains a list of confirmations.
   """
   @spec list_confirmations([Question.t()]) :: map()
   def list_confirmations([]), do: %{}
@@ -101,8 +97,6 @@ defmodule CraqValidator.RequestForChange do
   Saves a group of responses.
 
   Accepts a map of responses where each value is a valid `Response` changeset.
-
-  Returns a list of the inserted responses.
   """
   @spec save_responses(list()) :: {:ok, any()} | {:error, any()}
   def save_responses(responses) do
