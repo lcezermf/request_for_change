@@ -20,31 +20,40 @@ The solution was built using:
 
 ### Installation & Setup
 
-It requires you to have the same stack installed.
-
-If you are using `bash` you need ro run:
+It requires you to have the same stack installed. If you are using `bash` you need ro run:
 
 ```bash
+touch .bash_env
+
+# use your credentials
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+
 source .bash_env
 ```
 
-If you are using `fish` as me, you need to run:
+If you are using `fish` like me, you need to run:
 
 ```bash
+touce .fish_env
+
+# use your credentials
+set -x POSTGRES_USER postgres
+set -x POSTGRES_PASSWORD postgres
+set -x POSTGRES_HOST localhost
+
 source .fish_env
 ```
 
 Both commands will set the env variables for POSTGRES_USER, POSTGRES_PASSWORD and POSTGRES_HOST to later be used on test and dev env.
 
-Once env variables are set is possible to setup the DB for both envs
+Once env variables are set is possible to setup the DB for both envs.
 
 ```bash
 mix deps.get
 mix compile
 mix ecto.create; mix ecto.migrate
-```
-
-```bash
 MIX_ENV=test mix ecto.create; mix ecto.migrate
 ```
 
