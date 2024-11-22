@@ -39,6 +39,8 @@ Both commands will set the env variables for POSTGRES_USER, POSTGRES_PASSWORD an
 Once env variables are set is possible to setup the DB for both envs
 
 ```bash
+mix deps.get
+mix compile
 mix ecto.create; mix ecto.migrate
 ```
 
@@ -54,15 +56,13 @@ First needs to load the data from from `seeds.exs`:
 mix run priv/repo/seeds.exs
 ```
 
-The data will be loaded in batchs of 50, is possible to change this value by editing `priv/repo/seeds.exs` file.
-
 Once the data is loaded the app can run by:
 
 ```bash
 iex -S mix phx.server
 ```
 
-It will run the app and also open the iex console. If you do not wanna the iex console just run `iex -S mix phx.server`
+It will run the app and also open the iex console. If you do not wanna the iex console just run `mix phx.server`
 
 ### Running test
 
@@ -74,7 +74,6 @@ mix test
 
 ### Formating and code styles
 
-Is it possible to use credo, format and also Dialyzer to static code check by running.
 
 ```bash
 mix credo; mix format; mix dialyzer;

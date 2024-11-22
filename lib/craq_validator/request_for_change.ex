@@ -104,7 +104,7 @@ defmodule CraqValidator.RequestForChange do
 
   Returns a list of the inserted responses.
   """
-  @spec save_responses(map) :: {:ok, any()} | {:error, any()}
+  @spec save_responses(list()) :: {:ok, any()} | {:error, any()}
   def save_responses(responses) do
     Repo.transaction(fn ->
       Enum.reduce(responses, [], fn response, acc ->
