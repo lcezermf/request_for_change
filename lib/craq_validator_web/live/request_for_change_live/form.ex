@@ -21,6 +21,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         {[], nil, %{}}
       end
 
+    responses = RequestForChange.build_responses(questions, form_public_id)
+
     socket =
       socket
       |> assign(:questions, questions)
@@ -33,6 +35,10 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       |> assign(:form_public_id, form_public_id)
       |> assign(:selected_confirmations, [])
       |> assign(:questions_with_confirmations, [])
+      |> assign(
+        :total_pending_responses,
+        RequestForChange.calculate_total_pending_responses(responses, [])
+      )
 
     {:ok, socket}
   end
@@ -76,12 +82,21 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         disabled_confirmations
       end
 
+    updated_responses = Map.put(responses, String.to_integer(question_id), changeset)
+
     socket =
       socket
-      |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
+      |> assign(:responses, updated_responses)
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
       |> assign(:disabled_confirmations, updated_disabled_confirmations)
+      |> assign(
+        :total_pending_responses,
+        RequestForChange.calculate_total_pending_responses(
+          updated_responses,
+          disabled_questions_ids
+        )
+      )
 
     {:noreply, socket}
   end
@@ -123,14 +138,22 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
       end
 
     updated_questions_with_confirmations = questions_with_confirmations ++ [question.id]
+    updated_responses = Map.put(responses, String.to_integer(question_id), changeset)
 
     socket =
       socket
-      |> assign(:responses, Map.put(responses, String.to_integer(question_id), changeset))
+      |> assign(:responses, updated_responses)
       |> assign(:disabled_questions_ids, disabled_questions_ids)
       |> assign(:disabled_question_id, disabled_question_id)
       |> assign(:disabled_confirmations, updated_disabled_confirmations)
       |> assign(:questions_with_confirmations, updated_questions_with_confirmations)
+      |> assign(
+        :total_pending_responses,
+        RequestForChange.calculate_total_pending_responses(
+          updated_responses,
+          disabled_questions_ids
+        )
+      )
 
     {:noreply, socket}
   end
@@ -143,8 +166,13 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
           "option_id" => option_id,
           "confirmation_id" => confirmation_id
         },
-        %{assigns: %{selected_confirmations: selected_confirmations, questions: questions}} =
-          socket
+        %{
+          assigns: %{
+            disabled_questions_ids: disabled_questions_ids,
+            selected_confirmations: selected_confirmations,
+            questions: questions
+          }
+        } = socket
       ) do
     confirmation_id = String.to_integer(confirmation_id)
 
@@ -171,10 +199,19 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         confirmations: updated_selected_confirmations
       })
 
+    updated_responses = Map.put(responses, question.id, changeset)
+
     socket =
       socket
+      |> assign(:responses, updated_responses)
       |> assign(:selected_confirmations, updated_selected_confirmations)
-      |> assign(:responses, Map.put(responses, question.id, changeset))
+      |> assign(
+        :total_pending_responses,
+        RequestForChange.calculate_total_pending_responses(
+          updated_responses,
+          disabled_questions_ids
+        )
+      )
 
     {:noreply, socket}
   end
@@ -182,7 +219,8 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
   def handle_event(
         "reply_question",
         %{"question_id" => question_id, "value" => comment},
-        %{assigns: %{responses: responses}} = socket
+        %{assigns: %{disabled_questions_ids: disabled_questions_ids, responses: responses}} =
+          socket
       ) do
     question = RequestForChange.get_question_from_list(socket.assigns.questions, question_id)
 
@@ -197,9 +235,18 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
         comment: comment
       })
 
+    updated_responses = Map.put(responses, question.id, changeset)
+
     socket =
       socket
-      |> assign(:responses, Map.put(responses, question.id, changeset))
+      |> assign(:responses, updated_responses)
+      |> assign(
+        :total_pending_responses,
+        RequestForChange.calculate_total_pending_responses(
+          updated_responses,
+          disabled_questions_ids
+        )
+      )
 
     {:noreply, socket}
   end
