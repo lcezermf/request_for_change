@@ -121,12 +121,13 @@
         </fieldset>
       <% end %>
 
-      <%= @total_pending_responses %>
+      <.show_progress_message total={@total_pending_responses} />
 
       <:actions>
         <button
           type="submit"
-          class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          class={"w-full font-bold py-2 px-4 rounded #{if @total_pending_responses == 0, do: "bg-blue-500 hover:bg-blue-600 text-white", else: "bg-gray-200 text-black cursor-not-allowed"}"}
+          disabled={@total_pending_responses != 0}
         >
           Submit
         </button>

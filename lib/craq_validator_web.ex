@@ -86,6 +86,7 @@ defmodule CraqValidatorWeb do
       # Core UI components and translation
       import CraqValidatorWeb.CoreComponents
       import CraqValidatorWeb.ErrorComponent
+      import CraqValidatorWeb.PendingResponsesComponent
       import CraqValidatorWeb.Gettext
 
       # Shortcut for generating JS commands

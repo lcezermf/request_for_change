@@ -183,10 +183,7 @@ defmodule CraqValidator.RequestForChange do
 
   The total count of validation errors across all responses.
   """
-  @spec calculate_total_pending_responses([{integer() | binary(), Ecto.Changeset.t()}], [
-          integer()
-        ]) ::
-          non_neg_integer()
+  @spec calculate_total_pending_responses(map(), [integer()]) :: non_neg_integer()
   def calculate_total_pending_responses(responses, disabled_questions_ids) do
     responses
     |> Enum.reject(fn {question_id, _response} -> question_id in disabled_questions_ids end)

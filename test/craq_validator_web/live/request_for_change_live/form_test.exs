@@ -401,6 +401,41 @@ defmodule CraqValidatorWeb.RequestForChangeLive.FormTest do
     refute has_element?(view, "#confirmation-#{confirmation_two.id}[disabled]")
   end
 
+  test "must render proper progress messages when user complete the form",
+       %{
+         conn: conn
+       } do
+    question_one = Factory.insert!(:question)
+
+    option_one = Factory.insert!(:option, question_id: question_one.id)
+    Factory.insert!(:option, question_id: question_one.id)
+
+    question_two = Factory.insert!(:question)
+
+    option_two = Factory.insert!(:option, question_id: question_two.id)
+    Factory.insert!(:option, question_id: question_two.id)
+
+    {:ok, view, _html} = access_form_submission_page(conn)
+
+    assert has_element?(view, "#progress_message", "You have pending")
+
+    view
+    |> element("##{option_one.id}")
+    |> render_click()
+
+    assert has_element?(view, "#progress_message", "You have pending")
+
+    view
+    |> element("##{option_two.id}")
+    |> render_click()
+
+    assert has_element?(view, "#progress_message", "All set")
+
+    view
+    |> form("#craq_form")
+    |> render_submit()
+  end
+
   defp access_form_submission_page(conn) do
     conn
     |> get(~p"/request_for_change")
