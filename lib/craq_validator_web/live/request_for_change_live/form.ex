@@ -26,7 +26,7 @@ defmodule CraqValidatorWeb.RequestForChangeLive.Form do
     socket =
       socket
       |> assign(:questions, questions)
-      |> assign(:responses, RequestForChange.build_responses(questions, form_public_id))
+      |> assign(:responses, responses)
       |> assign(:has_submitted, false)
       |> assign(:disabled_questions_ids, [])
       |> assign(:disabled_question_id, nil)
